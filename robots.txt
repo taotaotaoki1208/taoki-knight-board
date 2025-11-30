@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://taotaotaoki1208.github.io/taoki-knight-board/sitemap.xml
