@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>我的任務 - 陶吉騎士團任務板</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-900 text-slate-800">
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <!-- 左側 Logo + 標題 -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+        陶
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-100">
+          陶吉騎士團任務板
+        </div>
+        <div class="text-xs text-slate-400">
+          校園互助任務平台
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：桌機導覽 + 使用者資訊 + 登出 -->
+    <div class="flex items-center gap-3 text-sm">
+      <!-- 電腦版導覽列 -->
+      <nav class="hidden sm:flex items-center gap-2">
+        <!-- 任務廣場 -->
+        <a
+          href="tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navTasks"
+        >
+          任務廣場
+        </a>
+
+        <!-- 我的任務 -->
+        <a
+          href="my_tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navMyTasks"
+        >
+          我的任務
+        </a>
+
+        <!-- 歷史紀錄 -->
+        <a
+          href="task_history.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navHistory"
+        >
+          歷史紀錄
+        </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+        <!-- 個人資料 -->
+        <a
+          href="profile.html"
+          class="rounded-full bg-indigo-500 px-3 py-1 text-xs font-medium text-white shadow hover:bg-indigo-400"
+          id="navProfile"
+        >
+          個人資料
+        </a>
+      </nav>
+
+      <!-- 使用者暱稱 / 學校（如果有） -->
+      <span
+        id="userInfo"
+        class="hidden sm:inline text-xs text-slate-300 max-w-[160px] truncate text-right"
+      ></span>
+
+      <!-- 登出按鈕 -->
+      <button
+        id="logoutBtn"
+        class="px-3 py-1 rounded-full text-xs border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+      >
+        登出
+      </button>
+    </div>
+  </div>
+</header>
+
+    <!-- 內容 -->
+    <main class="flex-1 px-4 py-6">
+      <div class="max-w-5xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-100 mb-1">我的任務</h1>
+          <p class="text-sm text-slate-400">
+            快速查看你發出的委託，和你接下的任務。
+          </p>
+        </div>
+
+        <p id="debug" class="text-[11px] text-slate-400 min-h-[1rem]"></p>
+
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-5">
+          <h2 class="text-base font-semibold text-slate-900 mb-2">我發出的任務</h2>
+          <ul id="myCreatedList" class="space-y-2">
+            <li class="text-sm text-slate-500">載入中...</li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-5">
+          <h2 class="text-base font-semibold text-slate-900 mb-2">我接到的任務</h2>
+          <ul id="myTakenList" class="space-y-2">
+            <li class="text-sm text-slate-500">載入中...</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+  <!-- 手機底部導覽列（小螢幕顯示） -->
+  <nav
+    class="fixed bottom-0 inset-x-0 z-30 border-t border-slate-800 bg-slate-950/95 backdrop-blur sm:hidden">
+    <!-- 手機底部導覽列（小螢幕） -->
+<!-- 手機底部導覽列（小螢幕） -->
+<div
+  class="fixed bottom-0 inset-x-0 sm:hidden bg-slate-950/95 backdrop-blur border-t border-slate-800 flex justify-around py-2 text-[11px] text-slate-300 z-20"
+>
+  <a
+    href="tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavTasks"
+  >
+    <span>任務</span>
+    <!-- 小圓點：預設隱藏，在哪一頁就改那一個的 opacity -->
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="my_tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavMyTasks"
+  >
+    <span>我的</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="task_history.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavHistory"
+  >
+    <span>歷史</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+  <a
+    href="profile.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavProfile"
+  >
+    <span>資料</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+</div>
+
+  </nav>
+  </div>
+
+
+  <script type="module">
+  import {
+    initializeApp,
+    getApp,
+    getApps
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+  import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    onSnapshot,
+    doc,
+    getDoc,
+    getDocs,
+    orderBy,
+    limit
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // 跟其他頁一樣的設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+
+  // ⭐ 確保一定有 App：如果已經初始化就拿現成的，沒有才 initialize
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+// ✅ 共用：檢查使用者是否被封鎖，若被封鎖就登出 + 導回登入頁
+async function enforceBanIfNeeded(user) {
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) return false;
+
+    const data = snap.data();
+    if (!data.isBanned) {
+      return false; // 沒被封鎖
+    }
+
+    const reason =
+      data.banReason ||
+      "你的帳號已被管理員封鎖，如有疑問請向老師或管理員詢問。";
+
+    alert("帳號已被封鎖：\n" + reason);
+
+    try {
+      // 把封鎖原因存起來，login.html 可以顯示
+      localStorage.setItem("lastBanReason", reason);
+    } catch (e) {
+      console.error("儲存封鎖原因失敗：", e);
+    }
+
+    await signOut(auth);
+    window.location.href = "login.html?banned=1";
+    return true;
+  } catch (err) {
+    console.error("檢查封鎖狀態失敗：", err);
+    return false;
+  }
+}
+
+  // ⬇️ 這下面接著放你原本的程式碼（onAuthStateChanged、loadMyCreatedTasks、attachUnreadBadge…）
+
+
+  const myCreatedListEl = document.getElementById("myCreatedList");
+  const myTakenListEl = document.getElementById("myTakenList");
+
+  let currentUser = null;
+// 登出按鈕
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "login.html";
+});
+
+  // ===== 小工具：聊天室未讀紅點 =====
+async function attachUnreadBadge(buttonEl, taskId) {
+  if (!currentUser) return;
+
+  try {
+    // console.log("==== 檢查未讀 for task:", taskId);
+
+    // ---- 1. 讀已讀時間 ----
+    const readRef = doc(db, "chat_reads", `${taskId}_${currentUser.uid}`);
+    const readSnap = await getDoc(readRef);
+
+    let lastReadAt = null;
+    if (readSnap.exists()) {
+      const d = readSnap.data();
+      if (d.lastReadAt?.toDate) {
+        lastReadAt = d.lastReadAt.toDate();
+      }
+    }
+    // console.log("lastReadAt =", lastReadAt);
+
+    // ---- 2. 讀這個任務的所有訊息（只用 where，不用 orderBy）----
+    const msgsRef = collection(db, "messages");
+    const q = query(
+      msgsRef,
+      where("taskId", "==", taskId)
+    );
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      // console.log("此任務沒有訊息");
+      return;
+    }
+
+    // ---- 3. 在前端自己找「最新一則」訊息 ----
+    let lastMsg = null;
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
+      if (!d.createdAt?.toDate) return;
+
+      if (!lastMsg || d.createdAt.toDate() > lastMsg.createdAt.toDate()) {
+        lastMsg = d;
+      }
+    });
+
+    if (!lastMsg) {
+      // console.log("沒有含 createdAt 的訊息");
+      return;
+    }
+
+    const lastCreatedAt = lastMsg.createdAt.toDate();
+    const isFromMe = lastMsg.fromUserId === currentUser.uid;
+
+    // console.log("lastCreatedAt =", lastCreatedAt);
+    // console.log("isFromMe =", isFromMe);
+
+    const hasUnread =
+      !isFromMe &&
+      (!lastReadAt || lastCreatedAt > lastReadAt);
+
+    // console.log("hasUnread =", hasUnread);
+
+    if (!hasUnread) return;
+
+    // ---- 4. 顯示紅點 ----
+    const dot = document.createElement("span");
+    dot.className =
+      "ml-1 inline-block w-2 h-2 rounded-full bg-rose-500 align-middle";
+    dot.title = "有未讀訊息";
+
+    buttonEl.appendChild(dot);
+
+  } catch (err) {
+    console.error("attachUnreadBadge error:", err);
+  }
+}
+
+
+
+  // ===== 我的發單（creator）=====
+  function loadMyCreatedTasks() {
+    myCreatedListEl.innerHTML = "";
+    const q = query(
+      collection(db, "tasks"),
+      where("creatorId", "==", currentUser.uid)
+    );
+
+    onSnapshot(q, async (snapshot) => {
+      myCreatedListEl.innerHTML = "";
+
+      snapshot.forEach(async (docSnap) => {
+        const data = docSnap.data();
+        const li = document.createElement("li");
+        li.className =
+          "rounded-lg border border-slate-200 bg-white p-4 mb-2 shadow";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-slate-800";
+        title.textContent = data.title;
+
+        li.appendChild(title);
+
+        // 接單者
+        if (data.takerNickname) {
+          const taker = document.createElement("div");
+          taker.className = "text-xs text-slate-500 mt-1";
+          taker.textContent = `接單者：${data.takerNickname}`;
+          li.appendChild(taker);
+        }
+
+        // 狀態
+        const status = document.createElement("div");
+        status.className =
+          "text-xs mt-1 " +
+          (data.status === "accepted"
+            ? "text-amber-500"
+            : data.status === "completed"
+            ? "text-indigo-500"
+            : "");
+        status.textContent = `狀態：${data.status}`;
+        li.appendChild(status);
+
+        // 聊天室（任務雙方可使用）
+        if (
+          data.status === "accepted" &&
+          (data.creatorId === currentUser.uid ||
+           data.takerId === currentUser.uid)
+        ) {
+          const chatBtn = document.createElement("button");
+          chatBtn.textContent = "聊天室";
+          chatBtn.className =
+            "mt-2 px-3 py-1 rounded bg-slate-800 text-xs text-white";
+          chatBtn.addEventListener("click", () => {
+            window.location.href = `chat.html?taskId=${docSnap.id}`;
+          });
+
+          li.appendChild(chatBtn);
+
+          // ⭐ 未讀紅點
+          await attachUnreadBadge(chatBtn, docSnap.id);
+        }
+
+        myCreatedListEl.appendChild(li);
+      });
+    });
+  }
+
+  // ===== 我的接單（taker）=====
+  function loadMyTakenTasks() {
+    myTakenListEl.innerHTML = "";
+
+    const q = query(
+      collection(db, "tasks"),
+      where("takerId", "==", currentUser.uid)
+    );
+
+    onSnapshot(q, async (snapshot) => {
+      myTakenListEl.innerHTML = "";
+
+      snapshot.forEach(async (docSnap) => {
+        const data = docSnap.data();
+        const li = document.createElement("li");
+        li.className =
+          "rounded-lg border border-slate-200 bg-white p-4 mb-2 shadow";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-slate-800";
+        title.textContent = data.title;
+
+        li.appendChild(title);
+
+        // 發單者
+        const creator = document.createElement("div");
+        creator.className = "text-xs text-slate-500 mt-1";
+        creator.textContent = `發單者：${data.creatorNickname}`;
+        li.appendChild(creator);
+
+        // 狀態
+        const status = document.createElement("div");
+        status.className =
+          "text-xs mt-1 " +
+          (data.status === "accepted"
+            ? "text-amber-500"
+            : data.status === "completed"
+            ? "text-indigo-500"
+            : "");
+        status.textContent = `狀態：${data.status}`;
+        li.appendChild(status);
+
+        // 聊天室（任務雙方可使用）
+        if (
+          data.status === "accepted" &&
+          (data.creatorId === currentUser.uid ||
+           data.takerId === currentUser.uid)
+        ) {
+          const chatBtn = document.createElement("button");
+          chatBtn.textContent = "聊天室";
+          chatBtn.className =
+            "mt-2 px-3 py-1 rounded bg-slate-800 text-xs text-white";
+          chatBtn.addEventListener("click", () => {
+            window.location.href = `chat.html?taskId=${docSnap.id}`;
+          });
+
+          li.appendChild(chatBtn);
+
+          // ⭐ 未讀紅點
+          await attachUnreadBadge(chatBtn, docSnap.id);
+        }
+
+        myTakenListEl.appendChild(li);
+      });
+    });
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const banned = await enforceBanIfNeeded(user);
+  if (banned) return; // 已被踢回登入頁，不要再往下
+
+  currentUser = user;
+
+  loadMyCreatedTasks();
+  loadMyTakenTasks();
+});
+
+
+
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

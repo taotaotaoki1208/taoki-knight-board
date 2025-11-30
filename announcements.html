@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>陶吉騎士團任務板 - 官方公告</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pageBg: "#020617",
+            cardBg: "#020617",
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-pageBg text-slate-200">
+<div class="min-h-screen flex flex-col">
+  <!-- 頂部導覽（跟 tasks.html 一樣，只是多一個「公告」） -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+          陶
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-slate-100">
+            陶吉騎士團任務板
+          </div>
+          <div class="text-xs text-slate-400">
+            校園互助任務平台 · 官方公告
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 text-sm">
+        <nav class="hidden sm:flex items-center gap-2">
+          <a href="tasks.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+            任務廣場
+          </a>
+          <a href="my_tasks.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+            我的任務
+          </a>
+          <a href="task_history.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+            歷史紀錄
+          </a>
+          <a href="announcements.html"
+             class="px-3 py-1 rounded-full bg-indigo-500 text-xs font-medium text-white shadow hover:bg-indigo-400">
+            公告
+          </a>
+          <a href="profile.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+            個人資料
+          </a>
+        </nav>
+
+        <span
+          id="userInfo"
+          class="hidden sm:inline text-xs text-slate-300 max-w-[160px] truncate text-right"
+        ></span>
+
+        <button
+          id="logoutBtn"
+          class="px-3 py-1 rounded-full text-xs border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+        >
+          登出
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容 -->
+  <main class="flex-1">
+    <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+      <!-- 標題 -->
+      <section>
+        <h1 class="text-2xl font-bold text-slate-100 mb-1">
+          官方公告
+        </h1>
+        <p class="text-sm text-slate-400">
+          這裡會發布系統維護、重大更新、使用規則等通知。
+        </p>
+      </section>
+
+      <!-- 公告列表 -->
+      <section
+        class="bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-slate-950/90 border border-slate-800 rounded-2xl shadow-xl shadow-slate-950/70 p-5 space-y-3">
+        <p id="annMsg" class="text-xs text-slate-400 min-h-[1rem]">
+          載入公告中…
+        </p>
+
+        <ul id="annList" class="space-y-3 text-sm">
+          <!-- JS 動態插入 -->
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <!-- （可選）手機底部導覽：如果你想要可以在這裡加一個「公告」按鈕 -->
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    query,
+    orderBy,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const userInfoEl = document.getElementById("userInfo");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const annMsg = document.getElementById("annMsg");
+  const annList = document.getElementById("annList");
+
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+  });
+
+  function formatTs(ts) {
+    if (!ts || !ts.toDate) return "";
+    const d = ts.toDate();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${y}/${m}/${day} ${hh}:${mm}`;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // 顯示使用者暱稱 / 學校
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        userInfoEl.textContent =
+          `歡迎，${data.nickname || "同學"}（${data.schoolName || data.schoolId || "未設定學校"}）`;
+      } else {
+        userInfoEl.textContent = "找不到使用者資料";
+      }
+    } catch (err) {
+      console.error(err);
+      userInfoEl.textContent = "讀取使用者資料失敗";
+    }
+
+    // 監聽公告（所有使用者都看得到）
+    const annRef = collection(db, "announcements");
+    const q = query(annRef, orderBy("createdAt", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+      annList.innerHTML = "";
+
+      if (snapshot.empty) {
+        annMsg.textContent = "目前沒有任何公告。";
+        return;
+      }
+
+      annMsg.textContent = "";
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        const li = document.createElement("li");
+        li.className =
+          "rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 shadow-md";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "flex items-center justify-between gap-2 mb-1";
+
+        const titleSpan = document.createElement("div");
+        titleSpan.className = "font-semibold text-slate-900";
+        titleSpan.textContent = data.title || "(未命名公告)";
+
+        const rightBox = document.createElement("div");
+        rightBox.className = "flex items-center gap-2 text-[11px]";
+
+        if (data.important) {
+          const tag = document.createElement("span");
+          tag.className =
+            "inline-flex items-center rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 border border-amber-300";
+          tag.textContent = "重要";
+          rightBox.appendChild(tag);
+        }
+
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "text-slate-500";
+        timeSpan.textContent = formatTs(data.createdAt);
+        rightBox.appendChild(timeSpan);
+
+        titleRow.appendChild(titleSpan);
+        titleRow.appendChild(rightBox);
+
+        const contentP = document.createElement("p");
+        contentP.className = "text-[13px] text-slate-700 whitespace-pre-wrap";
+        contentP.textContent = data.content || "";
+
+        li.appendChild(titleRow);
+        li.appendChild(contentP);
+        annList.appendChild(li);
+      });
+    }, (err) => {
+      console.error(err);
+      annMsg.textContent = "載入公告失敗：" + err.message;
+    });
+  });
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

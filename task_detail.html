@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>陶吉騎士團任務板 - 任務詳情</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pageBg: "#020617",
+            cardBg: "#020617"
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 自訂樣式（白卡、字色等等） -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-pageBg text-slate-200">
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <!-- 左側 Logo + 標題 -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+        陶
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-100">
+          陶吉騎士團任務板
+        </div>
+        <div class="text-xs text-slate-400">
+          校園互助任務平台
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：桌機導覽 + 使用者資訊 + 登出 -->
+    <div class="flex items-center gap-3 text-sm">
+      <!-- 電腦版導覽列 -->
+      <nav class="hidden sm:flex items-center gap-2">
+        <!-- 任務廣場 -->
+        <a
+          href="tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navTasks"
+        >
+          任務廣場
+        </a>
+
+        <!-- 我的任務 -->
+        <a
+          href="my_tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navMyTasks"
+        >
+          我的任務
+        </a>
+
+        <!-- 歷史紀錄 -->
+        <a
+          href="task_history.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navHistory"
+        >
+          歷史紀錄
+        </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+        <!-- 個人資料 -->
+        <a
+          href="profile.html"
+          class="rounded-full bg-indigo-500 px-3 py-1 text-xs font-medium text-white shadow hover:bg-indigo-400"
+          id="navProfile"
+        >
+          個人資料
+        </a>
+      </nav>
+
+      <!-- 使用者暱稱 / 學校（如果有） -->
+      <span
+        id="userInfo"
+        class="hidden sm:inline text-xs text-slate-300 max-w-[160px] truncate text-right"
+      ></span>
+
+      <!-- 登出按鈕 -->
+      <button
+        id="logoutBtn"
+        class="px-3 py-1 rounded-full text-xs border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+      >
+        登出
+      </button>
+    </div>
+  </div>
+</header>
+
+
+    <!-- 主內容 -->
+    <main class="flex-1 px-4 py-6">
+      <div class="max-w-3xl mx-auto space-y-4">
+        <!-- breadcrumb / 回上一頁 -->
+        <div class="flex items-center justify-between">
+          <button
+            id="backBtn"
+            class="inline-flex items-center gap-1 text-xs text-slate-300 hover:text-white">
+            <span>←</span>
+            <span>回任務廣場</span>
+          </button>
+          <span id="detailMessage" class="text-xs text-slate-400"></span>
+        </div>
+
+        <!-- 任務卡片 -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 px-5 py-5">
+          <!-- 狀態 + 標題 -->
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+              <div id="statusLabel"
+                   class="text-xs font-semibold tracking-wide text-slate-500">
+                讀取中…
+              </div>
+            </div>
+            <h1 id="taskTitleText"
+                class="text-lg sm:text-xl font-semibold text-slate-900">
+              任務載入中…
+            </h1>
+          </div>
+
+          <!-- 基本資訊 -->
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+            <span id="categoryChip"
+                  class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 border border-slate-200">
+              類別：—
+            </span>
+            <span id="rewardText" class="inline-flex items-center gap-1">
+              💰 <span>酬勞：—</span>
+            </span>
+            <span id="deadlineText" class="inline-flex items-center gap-1">
+              ⏰ <span>截止日期：—</span>
+            </span>
+            <span id="createdAtText" class="inline-flex items-center gap-1">
+              🕒 <span>發布時間：—</span>
+            </span>
+          </div>
+
+          <!-- 發單 / 接單資訊 -->
+          <div class="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+  <div>
+  <span class="text-slate-500">發單者：</span>
+
+  <span
+    id="creatorNickname"
+    class="font-medium text-slate-900 cursor-pointer hover:text-indigo-600 hover:underline"
+  >
+    —
+  </span>
+
+  <span id="creatorKnightLevel"
+  class="ml-1 inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-[2px] text-[11px] font-semibold text-amber-700 align-middle"
+  ></span>
+</div>
+  <div>
+    <span class="text-slate-500">接單者：</span>
+    <span
+    id="takerNickname"
+    class="font-medium text-slate-900 cursor-pointer hover:text-indigo-600 hover:underline"
+  >
+    —
+  </span>
+    <span
+      id="takerKnightLevel"
+      class="ml-1 inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-[2px] text-[11px] font-semibold text-amber-700 align-middle"
+    ></span>
+  </div>
+</div>
+
+          <!-- 任務說明 -->
+          <div class="mt-5 border-t border-slate-200 pt-4">
+            <h2 class="text-xs font-semibold text-slate-500 mb-1">任務說明</h2>
+            <p id="descriptionText" class="text-sm leading-relaxed text-slate-800">
+              （無說明）
+            </p>
+          </div>
+
+          <!-- 按鈕區 -->
+          <div class="mt-5 pt-4 border-t border-slate-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-xs text-slate-400">
+              ※ 僅同一位發單者與接單者可進入聊天室。
+            </p>
+            <div class="flex flex-wrap gap-2 justify-end">
+              <button
+                id="acceptBtn"
+                class="hidden px-3 py-1.5 rounded-full bg-indigo-500 text-xs font-medium text-white shadow shadow-indigo-500/40 hover:bg-indigo-400">
+                接下這單
+              </button>
+              <button
+                id="chatBtn"
+                class="hidden px-3 py-1.5 rounded-full bg-emerald-500 text-xs font-medium text-white shadow shadow-emerald-500/40 hover:bg-emerald-400">
+                打開聊天室
+              </button>
+              <button
+                id="completeBtn"
+                class="hidden px-3 py-1.5 rounded-full bg-slate-800 text-xs font-medium text-white shadow hover:bg-slate-700">
+                標記為已完成
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+      <!-- 任務評價區塊（只給完成任務、且你是任務雙方時顯示） -->
+      <section id="reviewSection" class="mt-6 hidden">
+        <h2 class="text-base font-semibold text-slate-100 mb-2">任務評價</h2>
+
+        <!-- 我給對方的評價（已送出時顯示） -->
+       <div
+  id="myReviewBox"
+  class="mb-3 hidden text-sm text-slate-800 bg-slate-200 rounded-xl px-4 py-3">
+</div>
+
+
+        <!-- 評價表單（尚未評價時顯示） -->
+        <form
+          id="reviewForm"
+          class="bg-slate-800/40 border border-slate-700 rounded-xl px-4 py-3 mb-3 space-y-2">
+          <div class="text-sm text-slate-100 font-medium">
+            給對方一個評價
+          </div>
+
+          <div class="flex items-center gap-2 text-yellow-400 text-lg">
+            <label><input type="radio" name="rating" value="1" class="mr-1">★</label>
+            <label><input type="radio" name="rating" value="2" class="mr-1">★★</label>
+            <label><input type="radio" name="rating" value="3" class="mr-1">★★★</label>
+            <label><input type="radio" name="rating" value="4" class="mr-1">★★★★</label>
+            <label><input type="radio" name="rating" value="5" class="mr-1">★★★★★</label>
+          </div>
+
+          <textarea
+  id="reviewComment"
+  rows="3"
+  class="w-full rounded-lg bg-slate-100 border border-slate-300 text-sm text-slate-800 px-3 py-2"
+  placeholder="可以簡單寫一下合作心得（選填）"></textarea>
+
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span id="reviewMsg" class="text-red-400"></span>
+            <button
+              type="submit"
+              class="px-3 py-1 rounded-full bg-indigo-500 text-xs text-white hover:bg-indigo-400">
+              送出評價
+            </button>
+          </div>
+        </form>
+
+        <!-- 對方給我的評價 -->
+        <div
+  id="otherReviewBox"
+  class="hidden text-sm text-slate-800 bg-slate-200 rounded-xl px-4 py-3">
+</div>
+
+      </section>
+
+  <!-- 手機底部導覽列（小螢幕顯示） -->
+  <nav
+    class="fixed bottom-0 inset-x-0 z-30 border-t border-slate-800 bg-slate-950/95 backdrop-blur sm:hidden">
+    <!-- 手機底部導覽列（小螢幕） -->
+<div
+  class="fixed bottom-0 inset-x-0 sm:hidden bg-slate-950/95 backdrop-blur border-t border-slate-800 flex justify-around py-2 text-[11px] text-slate-300 z-20"
+>
+  <a
+    href="tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavTasks"
+  >
+    <span>任務</span>
+    <!-- 小圓點當前頁指示用，預設隱藏，由每頁自行決定要不要顯示 -->
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="my_tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavMyTasks"
+  >
+    <span>我的</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="task_history.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavHistory"
+  >
+    <span>歷史</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+  <a
+    href="profile.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavProfile"
+  >
+    <span>資料</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+</div>
+
+  </nav>
+  </div>
+
+  <!-- Firebase / 任務詳情程式碼 -->
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // Firebase 設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // DOM 元素
+  const userInfoEl = document.getElementById("userInfo");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const backBtn = document.getElementById("backBtn");
+  const detailMessageEl = document.getElementById("detailMessage");
+
+  const statusDotEl = document.getElementById("statusDot");
+  const statusLabelEl = document.getElementById("statusLabel");
+  const titleEl = document.getElementById("taskTitleText");
+  const categoryChipEl = document.getElementById("categoryChip");
+  const rewardEl = document.getElementById("rewardText");
+  const deadlineEl = document.getElementById("deadlineText");
+  const createdAtEl = document.getElementById("createdAtText");
+  const creatorNicknameEl = document.getElementById("creatorNickname");
+  const takerNicknameEl = document.getElementById("takerNickname");
+  const descriptionEl = document.getElementById("descriptionText");
+
+  const creatorKnightLevelEl = document.getElementById("creatorKnightLevel");
+const takerKnightLevelEl = document.getElementById("takerKnightLevel");
+
+  const acceptBtn = document.getElementById("acceptBtn");
+  const chatBtn = document.getElementById("chatBtn");
+  const completeBtn = document.getElementById("completeBtn");
+
+  // 評價相關元素
+  const reviewSection = document.getElementById("reviewSection");
+  const myReviewBox = document.getElementById("myReviewBox");
+  const otherReviewBox = document.getElementById("otherReviewBox");
+  const reviewForm = document.getElementById("reviewForm");
+  const reviewComment = document.getElementById("reviewComment");
+  const reviewMsg = document.getElementById("reviewMsg");
+  const reviewStarInputs = document.querySelectorAll("input[name='rating']");
+
+  // 評價暫存
+  let myReview = null;
+  let otherReview = null;
+
+  // 取得 taskId
+  const params = new URLSearchParams(window.location.search);
+  const taskId = params.get("taskId");
+
+  if (!taskId) {
+    alert("缺少 taskId，無法顯示任務詳情。");
+    window.location.href = "tasks.html";
+  }
+
+  let currentUser = null;
+  let currentUserProfile = null;
+  let currentTask = null;
+// 點暱稱 → 到對方的公開騎士資料頁
+function goToUserProfile(uid) {
+  if (!uid) return;
+  window.location.href = `user_profile.html?uid=${encodeURIComponent(uid)}`;
+}
+
+if (creatorNicknameEl) {
+  creatorNicknameEl.addEventListener("click", () => {
+    if (currentTask && currentTask.creatorId) {
+      goToUserProfile(currentTask.creatorId);
+    }
+  });
+}
+
+if (takerNicknameEl) {
+  takerNicknameEl.addEventListener("click", () => {
+    if (currentTask && currentTask.takerId) {
+      goToUserProfile(currentTask.takerId);
+    }
+  });
+}
+
+  // 登出
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+  });
+
+  // 回任務廣場
+  backBtn.addEventListener("click", () => {
+    window.location.href = "tasks.html";
+  });
+
+  // 類別文字
+  function getCategoryLabel(value) {
+    switch (value) {
+      case "homework":
+        return "作業 / 資源";
+      case "borrow":
+        return "借物（筆、顏料、道具…）";
+      case "errand":
+        return "跑腿 / 代買";
+      case "other":
+        return "其他";
+      default:
+        return value || "未分類";
+    }
+  }
+
+  function formatDate(d) {
+    if (!d) return "未設定";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hour = String(d.getHours()).padStart(2, "0");
+    const minute = String(d.getMinutes()).padStart(2, "0");
+    return `${year}/${month}/${day} ${hour}:${minute}`;
+  }
+
+  function toJsDate(maybeTs) {
+    if (!maybeTs) return null;
+    if (typeof maybeTs.toDate === "function") return maybeTs.toDate();
+    if (maybeTs instanceof Date) return maybeTs;
+    return null;
+  }
+  // === 騎士等級相關 ===
+  // 這裡可以用跟 profile 頁面一樣的規則，你如果有自己的版本也可以改
+  // === 騎士等級規則（與 profile.html 完全相同） ===
+function getKnightLevel(trustScore) {
+  if (trustScore >= 90) {
+    return {
+      name: "鑽石騎士",
+      emoji: "💎",
+      badgeClass: "bg-emerald-500 text-white",
+    };
+  } else if (trustScore >= 70) {
+    return {
+      name: "黃金騎士",
+      emoji: "🥇",
+      badgeClass: "bg-amber-400 text-slate-900",
+    };
+  } else if (trustScore >= 40) {
+    return {
+      name: "騎士",
+      emoji: "🛡️",
+      badgeClass: "bg-sky-500 text-white",
+    };
+  } else if (trustScore >= 20) {
+    return {
+      name: "騎士學徒",
+      emoji: "🔰",
+      badgeClass: "bg-slate-500 text-white",
+    };
+  } else {
+    return {
+      name: "騎士見習",
+      emoji: "🌱",
+      badgeClass: "bg-slate-600 text-white",
+    };
+  }
+}
+
+
+  // 幫指定 user 算出信任度（0～100 分），資料來源：task_reviews
+  async function fetchTrustScoreForUser(userId) {
+    if (!userId) return null;
+
+    const reviewsRef = collection(db, "task_reviews");
+    const qReviews = query(reviewsRef, where("toUserId", "==", userId));
+    const snap = await getDocs(qReviews);
+
+    let total = 0;
+    let count = 0;
+
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
+      if (typeof d.rating === "number") {
+        total += d.rating;
+        count++;
+      }
+    });
+
+    if (!count) {
+      // 沒有被評價過，回傳 null，代表「新手」
+      return null;
+    }
+
+    const avg = total / count; // 0~5
+    const trustScore = Math.round((avg / 5) * 100); // 0~100
+    return trustScore;
+  }
+
+  function renderKnightBadge(el, trustScore) {
+  if (!el) return;
+
+  // ⭐ 沒有任何評價 → 顯示「騎士見習」
+  if (trustScore == null) {
+    el.innerHTML = `
+      <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-slate-600 text-white">
+        <span>🌱</span>
+        <span>騎士見習</span>
+      </span>
+    `;
+    return;
+  }
+
+  // ⭐ 取得正式騎士等級資訊（與 profile.html 完全一致）
+  const level = getKnightLevel(trustScore);
+
+  // ⭐ 輸出徽章（背景顏色 + emoji + 名稱）
+  el.innerHTML = `
+    <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${level.badgeClass}">
+      <span>${level.emoji}</span>
+      <span>${level.name}</span>
+    </span>
+  `;
+}
+
+
+  async function updateKnightBadges() {
+    if (!currentTask) return;
+
+    try {
+      // 發單者
+      if (currentTask.creatorId && creatorKnightLevelEl) {
+        const ts = await fetchTrustScoreForUser(currentTask.creatorId);
+        renderKnightBadge(creatorKnightLevelEl, ts);
+      }
+
+      // 接單者（可能還沒有人接）
+      if (currentTask.takerId && takerKnightLevelEl) {
+        const ts = await fetchTrustScoreForUser(currentTask.takerId);
+        renderKnightBadge(takerKnightLevelEl, ts);
+      } else if (takerKnightLevelEl) {
+        takerKnightLevelEl.textContent = ""; // 還沒有人接就不顯示
+      }
+    } catch (err) {
+      console.error("updateKnightBadges error:", err);
+    }
+  }
+
+  // 渲染任務內容
+  function renderTask() {
+    if (!currentTask) return;
+    const data = currentTask;
+
+    // 狀態顯示
+    const statusText =
+      data.status === "open"      ? "開放中" :
+      data.status === "accepted"  ? "已有人接" :
+      data.status === "completed" ? "已完成" :
+      data.status === "expired"   ? "已過期" :
+      "狀態不明";
+
+    const statusColorClass =
+      data.status === "open"      ? "text-emerald-500" :
+      data.status === "accepted"  ? "text-amber-500" :
+      data.status === "completed" ? "text-indigo-500" :
+      data.status === "expired"   ? "text-slate-500" :
+      "text-slate-500";
+
+    const dotColorClass =
+      data.status === "open"      ? "bg-emerald-400" :
+      data.status === "accepted"  ? "bg-amber-400" :
+      data.status === "completed" ? "bg-indigo-400" :
+      data.status === "expired"   ? "bg-slate-400" :
+      "bg-slate-300";
+
+    statusLabelEl.textContent = `【${statusText}】`;
+    statusLabelEl.className =
+      "text-xs font-semibold tracking-wide " + statusColorClass;
+    statusDotEl.className =
+      "w-2.5 h-2.5 rounded-full " + dotColorClass;
+
+    // 標題
+    titleEl.textContent = data.title || "(無標題)";
+
+    // 類別 / 酬勞 / 截止 / 發布
+    categoryChipEl.textContent = `類別：${getCategoryLabel(data.category)}`;
+
+        // 酬勞（防 XSS：不塞進 innerHTML）
+    const safeReward =
+      data.reward && String(data.reward).trim()
+        ? String(data.reward).trim().slice(0, 50)   // 限制最多 50 字
+        : "未填寫";
+    rewardEl.textContent = `💰 酬勞：${safeReward}`;
+
+    // 截止日期（這兩個其實不會 XSS，但順便統一用 textContent）
+    const deadlineDate = toJsDate(data.deadline);
+    const deadlineStr = deadlineDate ? formatDate(deadlineDate) : "未設定";
+    deadlineEl.textContent = `⏰ 截止日期：${deadlineStr}`;
+
+    const createdDate = toJsDate(data.createdAt);
+    const createdStr = createdDate ? formatDate(createdDate) : "未知";
+    createdAtEl.textContent = `🕒 發布時間：${createdStr}`;
+
+
+    // 發單 / 接單者
+    creatorNicknameEl.textContent = data.creatorNickname || "未知";
+    takerNicknameEl.textContent = data.takerNickname || "尚未有人接單";
+
+    // 說明
+    const desc = (data.description || "").trim();
+    descriptionEl.textContent = desc || "（發單者未填寫說明）";
+    
+    // 按鈕顯示
+    updateActionButtons();
+    updateKnightBadges();
+  }
+
+  // 讀取任務的評價
+  async function loadReviews() {
+    if (!currentUser || !currentTask) return;
+
+    const isParticipant =
+      currentTask.creatorId === currentUser.uid ||
+      currentTask.takerId === currentUser.uid;
+    if (!isParticipant) return;
+
+    const reviewsRef = collection(db, "task_reviews");
+    const q = query(reviewsRef, where("taskId", "==", currentTask.id));
+    const snap = await getDocs(q);
+
+    myReview = null;
+    otherReview = null;
+
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
+      if (d.fromUserId === currentUser.uid) {
+        myReview = { id: docSnap.id, ...d };
+      } else if (d.toUserId === currentUser.uid) {
+        otherReview = { id: docSnap.id, ...d };
+      }
+    });
+
+    renderReviews();
+  }
+
+  // 根據 currentTask / 評價狀態決定畫面
+  function renderReviews() {
+    if (!currentUser || !currentTask) return;
+
+    const isParticipant =
+      currentTask.creatorId === currentUser.uid ||
+      currentTask.takerId === currentUser.uid;
+    const isCompleted = currentTask.status === "completed";
+
+    if (!isParticipant || !isCompleted) {
+      reviewSection?.classList.add("hidden");
+      return;
+    }
+
+    reviewSection?.classList.remove("hidden");
+
+    // 我給對方的
+    if (myReview) {
+      reviewForm?.classList.add("hidden");
+      myReviewBox?.classList.remove("hidden");
+      const stars = "★".repeat(myReview.rating);
+      myReviewBox.textContent =
+        `你給對方的評價：${stars}（${myReview.rating} / 5）` +
+        (myReview.comment ? ` ${myReview.comment}` : "");
+    } else {
+      reviewForm?.classList.remove("hidden");
+      myReviewBox?.classList.add("hidden");
+    }
+
+    // 對方給我的
+    if (otherReview) {
+      otherReviewBox?.classList.remove("hidden");
+      const who =
+        currentTask.creatorId === currentUser.uid
+          ? currentTask.takerNickname || "接單者"
+          : currentTask.creatorNickname || "發單者";
+      const stars = "★".repeat(otherReview.rating);
+      otherReviewBox.textContent =
+        `${who} 給你的評價：${stars}（${otherReview.rating} / 5）` +
+        (otherReview.comment ? ` ${otherReview.comment}` : "");
+    } else {
+      otherReviewBox?.classList.add("hidden");
+    }
+  }
+
+  // 按鈕顯示邏輯
+  function updateActionButtons() {
+    acceptBtn.classList.add("hidden");
+    chatBtn.classList.add("hidden");
+    completeBtn.classList.add("hidden");
+
+    if (!currentUser || !currentTask) return;
+
+    const status = currentTask.status || "open";
+    const isCreator =
+      String(currentTask.creatorId || "") === String(currentUser.uid || "");
+    const isTaker =
+      String(currentTask.takerId || "") === String(currentUser.uid || "");
+
+    // 接單
+    if (status === "open" && !isCreator) {
+      acceptBtn.classList.remove("hidden");
+    }
+
+    // 聊天室：只在 accepted + 任務雙方
+    if (status === "accepted" && (isCreator || isTaker)) {
+      chatBtn.classList.remove("hidden");
+    }
+
+    // 標記完成：只在 accepted + 發單者
+    if (status === "accepted" && isCreator) {
+      completeBtn.classList.remove("hidden");
+    }
+  }
+
+  // 接單
+  async function acceptTask() {
+    if (!currentUser || !currentUserProfile || !currentTask) return;
+
+    const ok = confirm("確定要接下這個任務嗎？");
+    if (!ok) return;
+
+    try {
+      const taskRef = doc(db, "tasks", currentTask.id);
+      await updateDoc(taskRef, {
+        status: "accepted",
+        takerId: currentUser.uid,
+        takerNickname: currentUserProfile.nickname
+      });
+
+      detailMessageEl.textContent = "接單成功！";
+      await loadTaskFromServer();
+    } catch (err) {
+      console.error(err);
+      alert("接單失敗：" + err.message);
+    }
+  }
+
+  // 標記完成
+  async function completeTask() {
+    if (!currentUser || !currentTask) return;
+
+    const ok = confirm("確定要將這個任務標記為已完成嗎？");
+    if (!ok) return;
+
+    try {
+      const taskRef = doc(db, "tasks", currentTask.id);
+      await updateDoc(taskRef, {
+        status: "completed"
+      });
+
+      detailMessageEl.textContent = "已將任務標記為完成！";
+      await loadTaskFromServer();
+    } catch (err) {
+      console.error(err);
+      alert("標記完成失敗：" + err.message);
+    }
+  }
+
+  // 打開聊天室
+  function openChat() {
+    if (!currentTask) return;
+    window.location.href =
+      `chat.html?taskId=${encodeURIComponent(currentTask.id)}`;
+  }
+
+  acceptBtn.addEventListener("click", acceptTask);
+  completeBtn.addEventListener("click", completeTask);
+  chatBtn.addEventListener("click", openChat);
+
+  // 讀取任務
+  async function loadTaskFromServer() {
+    if (!taskId) return;
+    detailMessageEl.textContent = "讀取任務中…";
+
+    try {
+      const taskRef = doc(db, "tasks", taskId);
+      const snap = await getDoc(taskRef);
+
+      if (!snap.exists()) {
+        alert("找不到這個任務。");
+        window.location.href = "tasks.html";
+        return;
+      }
+
+      currentTask = { id: snap.id, ...snap.data() };
+
+      // 自動判斷是否過期（open + deadline < now → expired）
+      const deadlineDate = currentTask.deadline?.toDate?.() ?? null;
+      const now = new Date();
+      if (
+        currentTask.status === "open" &&
+        deadlineDate &&
+        deadlineDate < now
+      ) {
+        await updateDoc(taskRef, { status: "expired" });
+        currentTask.status = "expired";
+      }
+
+      renderTask();
+      // 渲染完按鈕後再讀取評價
+      await loadReviews();
+    } catch (err) {
+      console.error(err);
+      detailMessageEl.textContent = "載入任務失敗，請稍後再試。";
+    }
+  }
+
+  // 評價送出
+  reviewForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    reviewMsg.textContent = "";
+    reviewMsg.style.color = "red";
+
+    if (!currentUser || !currentTask) return;
+
+    let rating = null;
+    reviewStarInputs.forEach((input) => {
+      if (input.checked) rating = Number(input.value);
+    });
+
+    if (!rating) {
+      reviewMsg.textContent = "請先選擇一個評分。";
+      return;
+    }
+
+    const comment = reviewComment.value.trim();
+
+    const toUserId =
+      currentTask.creatorId === currentUser.uid
+        ? currentTask.takerId
+        : currentTask.creatorId;
+
+    if (!toUserId) {
+      reviewMsg.textContent = "找不到評價對象。";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "task_reviews"), {
+        taskId: currentTask.id,
+        fromUserId: currentUser.uid,
+        toUserId,
+        rating,
+        comment,
+        createdAt: new Date()
+      });
+
+      reviewMsg.style.color = "lime";
+      reviewMsg.textContent = "已送出評價！";
+      await loadReviews();
+    } catch (err) {
+      console.error(err);
+      reviewMsg.textContent = "送出評價失敗：" + err.message;
+    } finally {
+      setTimeout(() => {
+        reviewMsg.textContent = "";
+        reviewMsg.style.color = "red";
+      }, 2000);
+    }
+  });
+
+  // 登入狀態
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+// 共用：檢查使用者是否被封鎖
+async function enforceBanIfNeeded(user) {
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) return false;
+
+    const data = snap.data();
+    if (data.isBanned) {
+      const reason =
+        data.banReason ||
+        "你的帳號已被管理員封鎖，如有疑問請向老師或管理員詢問。";
+
+      alert(`帳號已被封鎖：\n${reason}`);
+
+      try {
+        // 把原因暫存下來，等等在 login 頁面顯示
+        localStorage.setItem("lastBanReason", reason);
+      } catch (e) {
+        console.error("儲存封鎖原因失敗：", e);
+      }
+
+      await signOut(auth);
+      // 加上 ?banned=1 讓 login.html 知道要顯示封鎖訊息
+      window.location.href = "login.html?banned=1";
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    console.error("檢查封鎖狀態失敗：", err);
+    // 出錯就當作沒封鎖，避免一直卡在這裡
+    return false;
+  }
+}
+
+    currentUser = user;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+
+      if (!snap.exists()) {
+        userInfoEl.textContent = "找不到使用者資料";
+        return;
+      }
+
+      currentUserProfile = snap.data();
+      userInfoEl.textContent =
+        `歡迎，${currentUserProfile.nickname}（${currentUserProfile.schoolName || ""}）`;
+
+      await loadTaskFromServer();
+    } catch (err) {
+      console.error(err);
+      userInfoEl.textContent = "載入使用者資料時發生錯誤";
+    }
+  });
+
+  // 手機底部導覽列：高亮
+  (() => {
+    const file = window.location.pathname.split("/").pop() || "tasks.html";
+    const map = {
+      "tasks.html": "tasks",
+      "task_detail.html": "tasks",
+      "my_tasks.html": "my_tasks",
+      "chat.html": "my_tasks",
+      "profile.html": "profile"
+    };
+    const activeKey = map[file] || "tasks";
+    document.querySelectorAll("[data-bottom-item]").forEach((el) => {
+      const key = el.getAttribute("data-bottom-item");
+      if (key === activeKey) {
+        el.classList.remove("text-slate-400");
+        el.classList.add("text-indigo-400", "font-semibold");
+      }
+    });
+  })();
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

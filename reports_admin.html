@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>管理後台 - 提問 / 檢舉列表 - 陶吉騎士團任務板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pageBg: "#020617"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- 共用樣式 -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-pageBg text-slate-100">
+<div class="min-h-screen flex flex-col">
+
+  <!-- 頂部導覽列 -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <!-- 左側 Logo + 標題 -->
+      <div class="flex items-center gap-3">
+        <div
+          class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+          陶
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-slate-100">
+            陶吉騎士團任務板 · 管理後台
+          </div>
+          <div class="text-xs text-amber-300">
+            提問 / 檢舉列表（reports）
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側：導覽 + 使用者 + 登出 -->
+      <div class="flex items-center gap-3 text-xs sm:text-sm">
+        <nav class="hidden sm:flex items-center gap-2 text-slate-300">
+          <a
+            href="tasks.html"
+            class="px-3 py-1 rounded-full hover:bg-slate-800/70"
+          >
+            任務廣場
+          </a>
+          <a
+            href="my_tasks.html"
+            class="px-3 py-1 rounded-full hover:bg-slate-800/70"
+          >
+            我的任務
+          </a>
+          <a
+            href="task_history.html"
+            class="px-3 py-1 rounded-full hover:bg-slate-800/70"
+          >
+            歷史紀錄
+          </a>
+          <a
+            href="profile.html"
+            class="px-3 py-1 rounded-full hover:bg-slate-800/70"
+          >
+            個人資料
+          </a>
+          <span class="px-3 py-1 rounded-full bg-slate-800/80 text-amber-300 border border-amber-400/40">
+            後台：回報列表
+          </span>
+        </nav>
+
+        <span
+          id="adminUserInfo"
+          class="hidden sm:inline text-[11px] text-slate-300 max-w-[180px] truncate text-right"
+        ></span>
+
+        <button
+          id="logoutBtn"
+          class="px-3 py-1 rounded-full text-[11px] border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+        >
+          登出
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容 -->
+  <main class="flex-1">
+    <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+
+      <!-- 說明區 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl shadow-slate-950/60">
+        <h1 class="text-lg font-semibold text-slate-50 mb-2">
+          提問 / 檢舉列表
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          這裡會顯示從首頁「提問 / 回報問題 / 檢舉」送出的所有回報（<code>reports</code> 集合）。<br/>
+          目前沒有權限限制，凡是已登入的使用者都能看到此頁面內容；未來如果要改成「只有管理者能看」，可以再調整 Firestore Rules。
+        </p>
+        <p id="reportsMeta" class="mt-2 text-[11px] text-slate-400">
+          載入中…
+        </p>
+      </section>
+
+      <!-- 回報列表 -->
+      <section
+        class="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 shadow-xl shadow-slate-950/60">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <h2 class="text-sm font-semibold text-slate-100">
+            最新回報
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            依建立時間由新到舊排序
+          </span>
+        </div>
+
+        <div id="reportsEmpty" class="text-xs text-slate-500 py-4 hidden">
+          目前還沒有任何回報紀錄。
+        </div>
+
+        <div id="reportsList" class="space-y-3 text-xs sm:text-sm">
+          <!-- 動態注入回報卡片 -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+</div>
+
+<!-- Firebase + 列表腳本 -->
+<script type="module">
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    limit,
+    onSnapshot,
+    doc,
+    updateDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // ✅ 管理者 UID（只有這個人可以看此頁）
+const ADMIN_UID = "kQ3myHuzPDOrpUoNZSWv67d5rp72";
+
+
+  // 與其他頁面相同的 Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const adminUserInfo = document.getElementById("adminUserInfo");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const reportsList = document.getElementById("reportsList");
+  const reportsEmpty = document.getElementById("reportsEmpty");
+  const reportsMeta = document.getElementById("reportsMeta");
+
+  // ⭐ 小工具：把 Firestore Timestamp 轉成簡單字串
+  function formatDate(ts) {
+    if (!ts) return "（時間未知）";
+    try {
+      const d = ts.toDate();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${y}/${m}/${day} ${hh}:${mm}`;
+    } catch (e) {
+      return "（時間解析失敗）";
+    }
+  }
+
+  function typeLabel(type) {
+    switch (type) {
+      case "bug":
+        return { text: "功能 Bug 回報", cls: "bg-amber-500/15 text-amber-300 border-amber-400/40" };
+      case "abuse":
+        return { text: "不當任務 / 騷擾檢舉", cls: "bg-rose-500/15 text-rose-300 border-rose-400/40" };
+      case "question":
+        return { text: "一般提問", cls: "bg-sky-500/15 text-sky-300 border-sky-400/40" };
+      default:
+        return { text: "其他", cls: "bg-slate-500/15 text-slate-300 border-slate-400/40" };
+    }
+  }
+
+  function statusLabel(status) {
+    if (status === "resolved") {
+      return {
+        text: "已處理",
+        cls: "bg-emerald-500/15 text-emerald-300 border-emerald-400/50"
+      };
+    }
+    // 預設視為 open
+    return {
+      text: "待處理",
+      cls: "bg-slate-500/15 text-slate-300 border-slate-400/50"
+    };
+  }
+
+  // 登出
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "login.html";
+    } catch (err) {
+      console.error(err);
+      alert("登出失敗，請稍後再試一次");
+    }
+  });
+
+  // 監聽登入狀態
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // 未登入 → 丟回登入頁
+      window.location.href = "login.html";
+      return;
+    }
+
+    // ✅ 不是管理者 → 不給看
+    if (user.uid !== ADMIN_UID) {
+      alert("你沒有權限查看這個頁面。");
+      window.location.href = "tasks.html";
+      return;
+    }
+
+    // 有登入又是管理者 → 顯示資訊
+    adminUserInfo.textContent = user.email || user.uid;
+
+    // 開始載入 reports 列表
+    const reportsRef = collection(db, "reports");
+    const q = query(
+      reportsRef,
+      orderBy("createdAt", "desc"),
+      limit(100)
+    );
+
+    onSnapshot(q, (snapshot) => {
+      reportsList.innerHTML = "";
+
+      if (snapshot.empty) {
+        reportsEmpty.classList.remove("hidden");
+        reportsMeta.textContent = "目前沒有任何回報紀錄。";
+        return;
+      }
+
+      reportsEmpty.classList.add("hidden");
+      reportsMeta.textContent = `共 ${snapshot.size} 筆回報（顯示最新 100 筆）`;
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const id = docSnap.id;
+        const { text: typeText, cls: typeCls } = typeLabel(data.type);
+        const status = data.status || "open";
+        const { text: statusText, cls: statusCls } = statusLabel(status);
+
+        const item = document.createElement("article");
+        item.className =
+          "rounded-xl border border-slate-700/80 bg-slate-900/80 px-3 py-3 shadow-sm shadow-black/40";
+
+        // 如果是已處理，就顯示標籤；如果是待處理，就顯示按鈕
+        const rightPart =
+          status === "resolved"
+            ? `<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] ${statusCls}">
+                 ${statusText}
+               </span>`
+            : `<button
+                 type="button"
+                 data-action="resolve"
+                 data-id="${id}"
+                 class="inline-flex items-center rounded-full border border-emerald-400/60 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] text-emerald-200 hover:bg-emerald-500/20"
+               >
+                 標記已處理
+               </button>`;
+
+        item.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] ${typeCls}">
+                ${typeText}
+              </span>
+              ${
+                data.name
+                  ? `<span class="text-[11px] text-slate-300">來自：${escapeHtml(
+                      data.name
+                    )}</span>`
+                  : `<span class="text-[11px] text-slate-500">來自：未填寫</span>`
+              }
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-slate-400">
+                ${formatDate(data.createdAt)}
+              </span>
+              ${rightPart}
+            </div>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-100 whitespace-pre-wrap break-words">
+            ${escapeHtml(data.content || "")}
+          </div>
+        `;
+
+        reportsList.appendChild(item);
+      });
+    });
+  });
+
+  // 點擊「標記已處理」的事件代理
+  reportsList.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-action='resolve']");
+    if (!btn) return;
+
+    const reportId = btn.dataset.id;
+    if (!reportId) return;
+
+    if (!confirm("確認要把這則回報標記為『已處理』嗎？")) {
+      return;
+    }
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "處理中…";
+
+    try {
+      const ref = doc(db, "reports", reportId);
+      await updateDoc(ref, {
+        status: "resolved",
+        resolvedAt: serverTimestamp()
+      });
+      // onSnapshot 會自動更新畫面，所以這裡不需要手動改 DOM
+    } catch (err) {
+      console.error(err);
+      alert("標記失敗，請稍後再試一次。");
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+
+  // 簡單的 HTML escape，避免內容亂插入標籤
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+
+</body>
+</html>

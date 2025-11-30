@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>陶吉騎士團任務板 - 登入</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- 如果有自己的 style.css 可以保留 -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-900 text-slate-800">
+  <div class="min-h-screen flex flex-col">
+    <!-- 導覽列（未登入） -->
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 flex items-center justify-center text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40">
+            陶
+          </div>
+          <div>
+            <div class="text-sm font-semibold tracking-wide text-slate-100">陶吉騎士團任務板</div>
+            <div class="text-xs text-slate-400">衛道校園委託平台 • Taoki</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 內容 -->
+    <main class="flex-1 flex items-center justify-center px-4 py-6">
+      <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+          <h1 class="text-xl font-semibold text-slate-900 mb-1">登入帳號</h1>
+          <p class="text-sm text-slate-500 mb-4">
+            使用你註冊時填寫的 Email 與密碼登入。
+          </p>
+
+          <form id="loginForm" class="space-y-3">
+            <div>
+              <label class="block text-xs text-slate-600 mb-1">Email</label>
+              <input
+                type="email"
+                id="email"
+                required
+                class="w-full rounded-xl border border-slate-300 bg-white
+                       px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-600 mb-1">密碼</label>
+              <input
+                type="password"
+                id="password"
+                required
+                class="w-full rounded-xl border border-slate-300 bg-white
+                       px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <p id="message" class="text-xs text-rose-500 min-h-[1.2rem]"></p>
+
+            <div class="flex items-center justify-between mt-1">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-full bg-indigo-500 px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-indigo-400"
+              >
+                登入
+              </button>
+
+              <div class="flex flex-col items-end gap-1">
+                <button
+                  type="button"
+                  id="forgotPasswordBtn"
+                  class="text-xs text-indigo-600 hover:underline"
+                >
+                  忘記密碼？
+                </button>
+
+                <a href="register.html" class="text-xs text-indigo-600 hover:underline">
+                  還沒有帳號？前往註冊
+                </a>
+              </div>
+            </div>
+            <p id="message" class="text-red-500 text-sm"></p>
+
+<p class="mt-1 text-[11px] text-slate-400">
+  ※ 若幾分鐘內沒收到驗證信，請到垃圾郵件或促銷郵件匣裡找找，並按「這不是垃圾郵件」。
+</p>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  sendEmailVerification,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+  authDomain: "taoki-knight-board.firebaseapp.com",
+  projectId: "taoki-knight-board",
+  storageBucket: "taoki-knight-board.firebasestorage.app",
+  messagingSenderId: "319225747276",
+  appId: "1:319225747276:web:5556b601dca17e760121e9"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const form = document.getElementById("loginForm");
+  const messageEl = document.getElementById("message");
+  try {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("banned") === "1") {
+    const reason = localStorage.getItem("lastBanReason");
+    messageEl.textContent =
+      reason
+        ? `你的帳號已被封鎖：${reason}`
+        : "你的帳號已被管理員封鎖，如有疑問請向老師或管理員詢問。";
+  }
+} catch (e) {
+  console.error("讀取封鎖原因失敗：", e);
+}
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+  form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  messageEl.textContent = "";
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+    console.log("登入成功：", user.uid);
+
+    // ✅ 第二關：檢查 Email 是否已驗證
+    if (!user.emailVerified) {
+      try {
+        await sendEmailVerification(user);
+        messageEl.textContent =
+          "你的 Email 尚未完成驗證，我們已重新寄出驗證信，請先到信箱點擊驗證連結，再回來登入。";
+      } catch (e) {
+        console.error("重新寄送驗證信失敗：", e);
+        messageEl.textContent =
+          "你的 Email 尚未完成驗證，且寄送驗證信時發生問題，請稍後再試。";
+      }
+
+      // 不讓未驗證帳號維持登入狀態
+      await signOut(auth);
+      return;
+    }
+
+    // ✅ 已驗證，才能進任務頁
+    window.location.href = "tasks.html";
+  } catch (error) {
+    console.error(error);
+    messageEl.textContent = "登入失敗：" + error.message;
+  }
+});
+  // 忘記密碼：寄送重設密碼 Email
+  forgotPasswordBtn?.addEventListener("click", async () => {
+    messageEl.textContent = "";
+
+    const emailInput = document.getElementById("email");
+    const email = emailInput.value.trim();
+
+    if (!email) {
+      messageEl.textContent = "請先在上方輸入你註冊用的 Email，再按「忘記密碼？」。";
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      messageEl.textContent = "重設密碼的連結已寄出，請到信箱查看。";
+      // 如果你想區分顏色，也可以 messageEl.style.color = "green";
+    } catch (error) {
+      console.error(error);
+      // Firebase 可能回傳 user-not-found 等錯誤
+      messageEl.textContent = "無法送出重設密碼信：" + (error.message || "");
+    }
+  });
+
+  // 如果本來就已登入，而且 Email 已驗證，就直接進任務頁
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  if (user.emailVerified) {
+    console.log("已登入且已驗證使用者（在 login.html ）：", user.uid);
+    window.location.href = "tasks.html";
+  } else {
+    console.log("使用者尚未驗證 Email，強制登出以保護系統。");
+    await signOut(auth);
+  }
+});
+
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

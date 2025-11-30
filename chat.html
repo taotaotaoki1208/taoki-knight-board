@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>任務聊天室 - 陶吉騎士團任務板</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-900 text-slate-800">
+  <div class="min-h-screen flex flex-col">
+    <!-- 導覽列 -->
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <!-- 左側 Logo + 標題 -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+        陶
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-100">
+          陶吉騎士團任務板
+        </div>
+        <div class="text-xs text-slate-400">
+          校園互助任務平台
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：桌機導覽 + 使用者資訊 + 登出 -->
+    <div class="flex items-center gap-3 text-sm">
+      <!-- 電腦版導覽列 -->
+      <nav class="hidden sm:flex items-center gap-2">
+        <!-- 任務廣場 -->
+        <a
+          href="tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navTasks"
+        >
+          任務廣場
+        </a>
+
+        <!-- 我的任務 -->
+        <a
+          href="my_tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navMyTasks"
+        >
+          我的任務
+        </a>
+
+        <!-- 歷史紀錄 -->
+        <a
+          href="task_history.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navHistory"
+        >
+          歷史紀錄
+        </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+        <!-- 個人資料 -->
+        <a
+          href="profile.html"
+          class="rounded-full bg-indigo-500 px-3 py-1 text-xs font-medium text-white shadow hover:bg-indigo-400"
+          id="navProfile"
+        >
+          個人資料
+        </a>
+      </nav>
+
+      <!-- 使用者暱稱 / 學校（如果有） -->
+      <span
+        id="userInfo"
+        class="hidden sm:inline text-xs text-slate-300 max-w-[160px] truncate text-right"
+      ></span>
+
+      <!-- 登出按鈕 -->
+      <button
+        id="logoutBtn"
+        class="px-3 py-1 rounded-full text-xs border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+      >
+        登出
+      </button>
+    </div>
+  </div>
+</header>
+
+
+    <!-- 內容 -->
+    <main class="flex-1 px-4 py-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="mb-3">
+      <div class="flex items-center justify-between gap-2">
+        <button
+          id="backBtnChat"
+          class="inline-flex items-center gap-1 text-xs text-slate-300 hover:text-white"
+        >
+          <span>←</span>
+          <span>回任務詳情</span>
+        </button>
+
+        <!-- 標題區 -->
+        <div class="text-right">
+          <h1 class="text-2xl font-bold text-slate-100 mb-1">任務聊天室</h1>
+          <p class="text-sm text-slate-400">
+            僅限此任務的發單者與接單者可以查看訊息與發話。
+          </p>
+        </div>
+      </div>
+    </div>
+
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-5 flex flex-col gap-3 min-h-[420px]">
+          <p id="taskInfo" class="text-sm text-slate-600 border-b border-slate-200 pb-2 mb-1">
+            讀取任務資訊中…
+          </p>
+
+          <div
+            id="messages"
+            class="flex-1 border border-slate-200 rounded-xl bg-slate-50 px-3 py-2 overflow-y-auto text-sm text-slate-800"
+          >
+            <!-- 訊息由 JS 填入 -->
+          </div>
+
+          <form id="chatForm" class="mt-2">
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                id="chatInput"
+                placeholder="輸入訊息…"
+                required
+                class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                type="submit"
+                class="rounded-full bg-indigo-500 px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-indigo-400"
+              >
+                送出
+              </button>
+            </div>
+            <p id="chatMessage" class="text-xs text-rose-500 mt-1 min-h-[1.2rem]"></p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+  <!-- 手機底部導覽列（小螢幕顯示） -->
+  <nav
+    class="fixed bottom-0 inset-x-0 z-30 border-t border-slate-800 bg-slate-950/95 backdrop-blur sm:hidden">
+    <!-- 手機底部導覽列（小螢幕） -->
+<!-- 手機底部導覽列（小螢幕） -->
+<div
+  class="fixed bottom-0 inset-x-0 sm:hidden bg-slate-950/95 backdrop-blur border-t border-slate-800 flex justify-around py-2 text-[11px] text-slate-300 z-20"
+>
+  <a
+    href="tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavTasks"
+  >
+    <span>任務</span>
+    <!-- 小圓點：預設隱藏，在哪一頁就改那一個的 opacity -->
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="my_tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavMyTasks"
+  >
+    <span>我的</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="task_history.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavHistory"
+  >
+    <span>歷史</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+  <a
+    href="profile.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavProfile"
+  >
+    <span>資料</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+</div>
+
+
+  </nav>
+  </div>
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,          // ⭐ 新增
+      collection,
+      addDoc,
+      query,
+      where,
+      orderBy,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+  authDomain: "taoki-knight-board.firebaseapp.com",
+  projectId: "taoki-knight-board",
+  storageBucket: "taoki-knight-board.firebasestorage.app",
+  messagingSenderId: "319225747276",
+  appId: "1:319225747276:web:5556b601dca17e760121e9"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const taskInfoEl = document.getElementById("taskInfo");
+    const messagesEl = document.getElementById("messages");
+    const chatForm = document.getElementById("chatForm");
+    const chatInput = document.getElementById("chatInput");
+    const chatMessageEl = document.getElementById("chatMessage");
+
+    const userInfoEl = document.getElementById("userInfo");
+const logoutBtn = document.getElementById("logoutBtn");
+const backBtnChat = document.getElementById("backBtnChat"); // ⭐ 新增：返回按鈕
+
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "login.html";
+});
+
+    let currentUser = null;
+    let currentUserProfile = null;
+    let currentTask = null;
+    let taskId = null;
+     let lastChatSentAt = 0;  // 上次送出訊息的時間（毫秒）
+  const CHAT_MIN_INTERVAL_MS = 5000; // 每則訊息間隔 5 秒
+
+    // 讀 URL 參數中的 taskId
+    const params = new URLSearchParams(window.location.search);
+    taskId = params.get("taskId");
+    if (!taskId) {
+      alert("缺少 taskId，無法顯示聊天室。");
+      window.location.href = "tasks.html";
+    }
+// ⭐ 新增：返回按鈕的邏輯
+backBtnChat?.addEventListener("click", () => {
+  if (taskId) {
+    // 回到這個任務的詳情頁
+    window.location.href = `task_detail.html?taskId=${encodeURIComponent(taskId)}`;
+  } else if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = "tasks.html";
+  }
+});
+    // 登入狀態
+    onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const banned = await enforceBanIfNeeded(user);
+  if (banned) return;
+
+  currentUser = user;
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        chatMessageEl.textContent = "找不到你的使用者資料。";
+        return;
+      }
+      currentUserProfile = userSnap.data();
+userInfoEl.textContent = `${currentUserProfile.nickname}（${currentUserProfile.schoolName || ""}）`;
+
+      // 把任務資料抓出來，確認你有資格進聊天室
+      const taskRef = doc(db, "tasks", taskId);
+      const taskSnap = await getDoc(taskRef);
+      if (!taskSnap.exists()) {
+        alert("找不到這個任務。");
+        window.location.href = "tasks.html";
+        return;
+      }
+      currentTask = taskSnap.data();
+
+      // 檢查：狀態必須是 accepted，且你是發單者或接單者
+      if (
+        currentTask.status !== "accepted" ||
+        (currentTask.creatorId !== currentUser.uid &&
+         currentTask.takerId !== currentUser.uid)
+      ) {
+        alert("你不是這個任務的發單者或接單者，或任務尚未被接，無法進入聊天室。");
+        window.location.href = "tasks.html";
+        return;
+      }
+
+      // ⭐ 進入聊天室時，紀錄「已讀到現在」
+      const readRef = doc(db, "chat_reads", `${taskId}_${currentUser.uid}`);
+      await setDoc(
+        readRef,
+        {
+          taskId,
+          userId: currentUser.uid,
+          lastReadAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      taskInfoEl.textContent =
+        `任務：${currentTask.title} ` +
+        `（發單者：${currentTask.creatorNickname || "未知"}；` +
+        `接單者：${currentTask.takerNickname || "未知"}）`;
+
+      // 開始監聽這個任務的訊息
+      listenMessages();
+});
+
+    function listenMessages() {
+  const msgsRef = collection(db, "messages");
+  const q = query(msgsRef, where("taskId", "==", taskId));
+
+  onSnapshot(
+    q,
+    (snapshot) => {
+      const msgs = [];
+      snapshot.forEach((docSnap) => {
+        const msg = docSnap.data();
+        msgs.push({
+          id: docSnap.id,
+          ...msg,
+        });
+      });
+
+      // 依時間排序（沒有 createdAt 的放最前面）
+      msgs.sort((a, b) => {
+        if (!a.createdAt && !b.createdAt) return 0;
+        if (!a.createdAt) return -1;
+        if (!b.createdAt) return 1;
+
+        // Firestore Timestamp
+        const aMs = a.createdAt.toMillis
+          ? a.createdAt.toMillis()
+          : a.createdAt.getTime();
+        const bMs = b.createdAt.toMillis
+          ? b.createdAt.toMillis()
+          : b.createdAt.getTime();
+        return aMs - bMs;
+      });
+
+      messagesEl.innerHTML = "";
+
+      if (msgs.length === 0) {
+        messagesEl.textContent = "還沒有訊息，可以先跟對方打招呼～";
+        return;
+      }
+
+      msgs.forEach((msg) => {
+        const isMe = msg.fromUserId === currentUser.uid;
+
+        // 外層：決定靠左 / 靠右
+        const wrapper = document.createElement("div");
+        wrapper.className = `mb-2 flex ${
+          isMe ? "justify-end" : "justify-start"
+        }`;
+
+        // 氣泡本體
+        const bubble = document.createElement("div");
+        bubble.className =
+          "max-w-[75%] rounded-2xl px-3 py-2 text-xs sm:text-sm shadow " +
+          (isMe
+            ? "bg-indigo-500 text-white rounded-br-sm"
+            : "bg-white text-slate-800 rounded-bl-sm");
+
+        // 暱稱
+        const nameEl = document.createElement("div");
+        nameEl.className =
+          "mb-0.5 text-[11px] font-medium " +
+          (isMe ? "text-indigo-100 text-right" : "text-slate-500");
+        nameEl.textContent = msg.fromNickname || "??";
+
+        // 內容
+        const textEl = document.createElement("div");
+        textEl.className = "whitespace-pre-wrap break-words";
+        textEl.textContent = msg.text;
+
+        // 時間（HH:MM）
+        const metaEl = document.createElement("div");
+        metaEl.className =
+          "mt-0.5 text-[10px] " +
+          (isMe ? "text-indigo-100/80 text-right" : "text-slate-400");
+
+        let timeText = "剛剛";
+        if (msg.createdAt && msg.createdAt.toDate) {
+          const d = msg.createdAt.toDate();
+          const hh = String(d.getHours()).padStart(2, "0");
+          const mm = String(d.getMinutes()).padStart(2, "0");
+          timeText = `${hh}:${mm}`;
+        }
+        metaEl.textContent = timeText;
+
+        bubble.appendChild(nameEl);
+        bubble.appendChild(textEl);
+        bubble.appendChild(metaEl);
+
+        wrapper.appendChild(bubble);
+        messagesEl.appendChild(wrapper);
+      });
+
+      // 捲到底
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    },
+    (error) => {
+      console.error("listenMessages error:", error);
+      chatMessageEl.textContent = "讀取訊息時發生錯誤：" + error.message;
+    }
+  );
+}
+
+
+
+
+
+    chatForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      chatMessageEl.textContent = "";
+
+      const now = Date.now();
+
+      // ★ Rate limit：防止短時間內連續狂刷
+      if (now - lastChatSentAt < CHAT_MIN_INTERVAL_MS) {
+        const waitSec = Math.ceil(
+          (CHAT_MIN_INTERVAL_MS - (now - lastChatSentAt)) / 1000
+        );
+        chatMessageEl.textContent = `你打太快了，請約 ${waitSec} 秒後再傳訊息。`;
+        return;
+      }
+
+      let text = chatInput.value.trim();
+      if (!text) return;
+
+      // ★ 長度限制（避免一次貼超長垃圾文）
+      const MAX_CHAT_LEN = 300;
+      if (text.length > MAX_CHAT_LEN) {
+        text = text.slice(0, MAX_CHAT_LEN);
+        chatMessageEl.textContent = `訊息過長，已自動截斷為前 ${MAX_CHAT_LEN} 字。`;
+      }
+
+      if (!currentUser || !currentUserProfile || !currentTask) {
+        chatMessageEl.textContent = "尚未完成初始化，請稍候再試。";
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "messages"), {
+          taskId,
+          fromUserId: currentUser.uid,
+          fromNickname: currentUserProfile.nickname || "",
+          text,
+          createdAt: new Date(),
+        });
+
+        lastChatSentAt = now; // ★ 記錄這次送出的時間
+        chatInput.value = "";
+      } catch (err) {
+        console.error(err);
+        chatMessageEl.textContent = "送出失敗：" + err.message;
+      }
+    });
+
+    // === 手機底部導覽列：高亮目前頁面 ===
+  (() => {
+    const file = window.location.pathname.split("/").pop() || "tasks.html";
+
+    // 把實際檔名對應到底部導覽的 key
+    const map = {
+      "tasks.html": "tasks",
+      "task_detail.html": "tasks",   // 詳情頁也算任務廣場那一頁
+      "my_tasks.html": "my_tasks",
+      "chat.html": "my_tasks",       // 聊天室算「我的任務」分支
+      "profile.html": "profile"
+    };
+
+    const activeKey = map[file] || "tasks";
+
+    document.querySelectorAll("[data-bottom-item]").forEach((el) => {
+      const key = el.getAttribute("data-bottom-item");
+      if (key === activeKey) {
+        el.classList.remove("text-slate-400");
+        el.classList.add(
+          "text-indigo-400",
+          "font-semibold"
+        );
+      }
+    });
+  })();
+  </script>
+  <p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

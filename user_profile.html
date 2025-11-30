@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>騎士資料 - 陶吉騎士團任務板</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pageBg: "#020617"
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-pageBg text-slate-100">
+<div class="min-h-screen flex flex-col">
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <!-- 左側 Logo + 標題 -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+        陶
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-100">
+          陶吉騎士團任務板
+        </div>
+        <div class="text-xs text-slate-400">
+          校園互助任務平台
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：桌機導覽 + 使用者資訊 + 登出 -->
+    <div class="flex items-center gap-3 text-sm">
+      <!-- 電腦版導覽列 -->
+      <nav class="hidden sm:flex items-center gap-2">
+        <!-- 任務廣場 -->
+        <a
+          href="tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navTasks"
+        >
+          任務廣場
+        </a>
+
+        <!-- 我的任務 -->
+        <a
+          href="my_tasks.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navMyTasks"
+        >
+          我的任務
+        </a>
+
+        <!-- 歷史紀錄 -->
+        <a
+          href="task_history.html"
+          class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+          id="navHistory"
+        >
+          歷史紀錄
+        </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+        <!-- 個人資料 -->
+        <a
+          href="profile.html"
+          class="rounded-full bg-indigo-500 px-3 py-1 text-xs font-medium text-white shadow hover:bg-indigo-400"
+          id="navProfile"
+        >
+          個人資料
+        </a>
+      </nav>
+
+      <!-- 使用者暱稱 / 學校（如果有） -->
+      <span
+        id="userInfo"
+        class="hidden sm:inline text-xs text-slate-300 max-w-[160px] truncate text-right"
+      ></span>
+
+      <!-- 登出按鈕 -->
+      <button
+        id="logoutBtn"
+        class="px-3 py-1 rounded-full text-xs border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+      >
+        登出
+      </button>
+    </div>
+    <!-- 手機底部導覽列（小螢幕） -->
+<div
+  class="fixed bottom-0 inset-x-0 sm:hidden bg-slate-950/95 backdrop-blur border-t border-slate-800 flex justify-around py-2 text-[11px] text-slate-300 z-20"
+>
+  <a
+    href="tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavTasks"
+  >
+    <span>任務</span>
+    <!-- 小圓點：預設隱藏，在哪一頁就改那一個的 opacity -->
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="my_tasks.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavMyTasks"
+  >
+    <span>我的</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+
+  <a
+    href="task_history.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavHistory"
+  >
+    <span>歷史</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+<a
+  href="announcements.html"
+  class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300"
+>
+  公告
+</a>
+  <a
+    href="profile.html"
+    class="flex flex-col items-center gap-0.5"
+    id="mnavProfile"
+  >
+    <span>資料</span>
+    <span class="mt-0.5 h-1 w-1 rounded-full bg-indigo-400 opacity-0"></span>
+  </a>
+</div>
+
+  </div>
+</header>
+
+
+  <main class="flex-1">
+    <div class="max-w-3xl mx-auto px-4 py-6 space-y-4">
+      <button id="backBtn"
+              class="mb-2 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200">
+        ← 返回任務詳情
+      </button>
+
+      <section
+        class="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl shadow-slate-950/60">
+        <div class="flex items-start gap-4">
+          <!-- 頭像 -->
+          <div
+            id="avatarBox"
+            class="h-16 w-16 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden text-lg font-semibold text-slate-200"
+          >
+            ?
+          </div>
+
+          <div class="flex-1 space-y-1">
+            <h1 id="nicknameText" class="text-xl font-bold text-slate-50">
+              載入中…
+            </h1>
+            <p id="schoolText" class="text-xs text-slate-400">
+               
+            </p>
+
+            <!-- 騎士等級 & 信任度 -->
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span id="knightBadge"></span>
+              <span id="trustInfo" class="text-slate-300"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 簡單統計 -->
+        <div class="mt-4 grid gap-3 text-xs text-slate-200 sm:grid-cols-3">
+          <div class="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
+            <div class="text-[11px] text-slate-400 mb-1">完成任務數</div>
+            <div id="completedCount" class="text-lg font-semibold text-emerald-300">—</div>
+          </div>
+          <div class="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
+            <div class="text-[11px] text-slate-400 mb-1">發出任務數</div>
+            <div id="createdCount" class="text-lg font-semibold text-sky-300">—</div>
+          </div>
+          <div class="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
+            <div class="text-[11px] text-slate-400 mb-1">接到任務數</div>
+            <div id="takenCount" class="text-lg font-semibold text-amber-300">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 最近合作評價 -->
+      <section
+        class="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl shadow-slate-950/60">
+        <h2 class="text-sm font-semibold text-slate-100 mb-2">
+          最近的合作評價（對這位騎士）
+        </h2>
+        <div id="reviewSummary" class="text-xs text-slate-400 mb-2">
+          載入中…
+        </div>
+        <ul id="reviewList" class="space-y-2 text-xs text-slate-100">
+          <!-- JS 填入 -->
+        </ul>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    getDocs,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const avatarBox = document.getElementById("avatarBox");
+  const nicknameText = document.getElementById("nicknameText");
+  const schoolText = document.getElementById("schoolText");
+  const knightBadgeEl = document.getElementById("knightBadge");
+  const trustInfoEl = document.getElementById("trustInfo");
+  const completedCountEl = document.getElementById("completedCount");
+  const createdCountEl = document.getElementById("createdCount");
+  const takenCountEl = document.getElementById("takenCount");
+  const reviewSummaryEl = document.getElementById("reviewSummary");
+  const reviewListEl = document.getElementById("reviewList");
+  const backBtn = document.getElementById("backBtn");
+
+  // 取得網址上的 uid 參數
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetUid = urlParams.get("uid");
+
+  if (!targetUid) {
+    nicknameText.textContent = "找不到此騎士。";
+  }
+
+  backBtn.addEventListener("click", () => {
+    history.back();
+  });
+
+  function formatDate(d) {
+    if (!d) return "";
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}/${m}/${day}`;
+  }
+
+  // 與 profile.html 一樣的騎士等級
+  function getKnightLevel(trustScore) {
+    if (trustScore >= 90) {
+      return {
+        name: "鑽石騎士",
+        emoji: "💎",
+        badgeClass: "bg-emerald-500 text-white"
+      };
+    } else if (trustScore >= 70) {
+      return {
+        name: "黃金騎士",
+        emoji: "🥇",
+        badgeClass: "bg-amber-400 text-slate-900"
+      };
+    } else if (trustScore >= 40) {
+      return {
+        name: "騎士",
+        emoji: "🛡️",
+        badgeClass: "bg-sky-500 text-white"
+      };
+    } else if (trustScore >= 20) {
+      return {
+        name: "騎士學徒",
+        emoji: "🔰",
+        badgeClass: "bg-slate-500 text-white"
+      };
+    } else {
+      return {
+        name: "騎士見習",
+        emoji: "🌱",
+        badgeClass: "bg-slate-600 text-white"
+      };
+    }
+  }
+
+  function setAvatarLetter(name) {
+    const c = (name || "?").trim().charAt(0) || "?";
+    avatarBox.textContent = c;
+  }
+
+  function setAvatarImage(src) {
+  if (!src) return;
+  avatarBox.innerHTML = `
+    <img
+      src="${src}"
+      alt="avatar"
+      loading="lazy"
+      class="h-full w-full object-cover rounded-full"
+    />
+  `;
+}
+
+
+  async function loadUserBasic() {
+    const userRef = doc(db, "users", targetUid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      nicknameText.textContent = "找不到此騎士的資料。";
+      schoolText.textContent = "";
+      return null;
+    }
+
+    const data = snap.data();
+    const nickname = data.nickname || "(未設定暱稱)";
+    nicknameText.textContent = nickname;
+    schoolText.textContent = data.schoolName || "衛道中學";
+
+    const avatarData = data.avatarData || data.avatarUrl || null;
+    if (avatarData) {
+      setAvatarImage(avatarData);
+    } else {
+      setAvatarLetter(nickname);
+    }
+
+    return data;
+  }
+
+  async function loadUserReviews() {
+    const reviewsRef = collection(db, "task_reviews");
+    const qReviews = query(reviewsRef, where("toUserId", "==", targetUid));
+    const snap = await getDocs(qReviews);
+
+    if (snap.empty) {
+      reviewSummaryEl.textContent = "目前還沒有任何合作評價。";
+      reviewListEl.innerHTML = "";
+      trustInfoEl.textContent = "信任度：尚未評分";
+      knightBadgeEl.innerHTML =
+        `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-slate-600 text-white">
+          <span>🌱</span><span>騎士見習</span>
+         </span>`;
+      return { trustScore: null, count: 0 };
+    }
+
+    const list = [];
+    let total = 0;
+    let count = 0;
+
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
+      if (typeof d.rating === "number") {
+        total += d.rating;
+        count++;
+      }
+      list.push({ id: docSnap.id, ...d });
+    });
+
+    if (!count) {
+      reviewSummaryEl.textContent = "尚未有可計算的評分。";
+      return { trustScore: null, count: 0 };
+    }
+
+    const avg = total / count;
+    const trustScore = Math.round((avg / 5) * 100);
+    const avgRounded = Math.round(avg * 10) / 10;
+    const stars = "★".repeat(Math.round(avg)) +
+      "☆".repeat(5 - Math.round(avg));
+
+    const level = getKnightLevel(trustScore);
+    knightBadgeEl.innerHTML =
+      `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${level.badgeClass}">
+        <span>${level.emoji}</span><span>${level.name}</span>
+       </span>`;
+    trustInfoEl.textContent =
+      `信任度：${trustScore} 分｜平均評分 ${avgRounded} / 5（共 ${count} 筆）`;
+
+    reviewSummaryEl.textContent = "";
+
+    // 排序，列出最近 3 筆
+    list.sort((a, b) => {
+      const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return db - da;
+    });
+
+    const latest = list.slice(0, 3);
+    reviewListEl.innerHTML = "";
+    latest.forEach((r) => {
+      const li = document.createElement("li");
+      li.className =
+        "rounded-lg bg-slate-800/90 border border-slate-700 px-3 py-2";
+
+      const starCount = Math.round(r.rating || 0);
+      const starStr = "★".repeat(starCount) + "☆".repeat(5 - starCount);
+      const dateStr = r.createdAt?.toDate
+        ? formatDate(r.createdAt.toDate())
+        : "";
+
+      const safeComment = (r.comment || "（對方沒有留下文字）")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      li.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[13px] text-yellow-400">${starStr}</span>
+          <span class="text-[11px] text-slate-500">${dateStr}</span>
+        </div>
+        <div class="mt-1 text-xs text-slate-100">${safeComment}</div>
+      `;
+      reviewListEl.appendChild(li);
+    });
+
+    return { trustScore, count };
+  }
+
+  async function loadUserTaskStats() {
+    const tasksRef = collection(db, "tasks");
+
+    const qCreated = query(tasksRef, where("creatorId", "==", targetUid));
+    const snapCreated = await getDocs(qCreated);
+
+    const qTaken = query(tasksRef, where("takerId", "==", targetUid));
+    const snapTaken = await getDocs(qTaken);
+
+    let created = 0;
+    let taken = 0;
+    let completed = 0;
+
+    snapCreated.forEach((docSnap) => {
+      const d = docSnap.data();
+      created++;
+      if (d.status === "completed") completed++;
+    });
+
+    snapTaken.forEach((docSnap) => {
+      const d = docSnap.data();
+      taken++;
+      if (d.status === "completed") completed++;
+    });
+
+    createdCountEl.textContent = created;
+    takenCountEl.textContent = taken;
+    completedCountEl.textContent = completed;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    // 共用：檢查使用者是否被封鎖
+async function enforceBanIfNeeded(user) {
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) return false;
+
+    const data = snap.data();
+    if (data.isBanned) {
+      const reason =
+        data.banReason ||
+        "你的帳號已被管理員封鎖，如有疑問請向老師或管理員詢問。";
+
+      alert(`帳號已被封鎖：\n${reason}`);
+
+      try {
+        // 把原因暫存下來，等等在 login 頁面顯示
+        localStorage.setItem("lastBanReason", reason);
+      } catch (e) {
+        console.error("儲存封鎖原因失敗：", e);
+      }
+
+      await signOut(auth);
+      // 加上 ?banned=1 讓 login.html 知道要顯示封鎖訊息
+      window.location.href = "login.html?banned=1";
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    console.error("檢查封鎖狀態失敗：", err);
+    // 出錯就當作沒封鎖，避免一直卡在這裡
+    return false;
+  }
+}
+
+    if (!targetUid) return;
+
+    try {
+      await loadUserBasic();
+      await Promise.all([
+        loadUserReviews(),
+        loadUserTaskStats()
+      ]);
+    } catch (err) {
+      console.error(err);
+      nicknameText.textContent = "載入騎士資料時發生錯誤。";
+    }
+  });
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>陶吉騎士團任務板 - 註冊</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-900 text-slate-800">
+  <div class="min-h-screen flex flex-col">
+    <!-- 導覽列 -->
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 flex items-center justify-center text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40">
+            陶
+          </div>
+          <div>
+            <div class="text-sm font-semibold tracking-wide text-slate-100">
+              陶吉騎士團任務板
+            </div>
+            <div class="text-xs text-slate-400">
+              衛道校園委託平台 • Taoki
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 內容 -->
+    <main class="flex-1 flex items-center justify-center px-4 py-6">
+      <div class="w-full max-w-lg">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+          <h1 class="text-xl font-semibold text-slate-900 mb-1">建立新帳號</h1>
+          <p class="text-sm text-slate-500 mb-4">
+            只有同校同學可以使用，真實資料不會顯示給其他人。
+          </p>
+
+          <form id="registerForm" class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-slate-600 mb-1">學校</label>
+                <select
+                  id="schoolId"
+                  required
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <!-- JS 會自動填入 options -->
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-600 mb-1">部別</label>
+                <select
+                  id="schoolLevel"
+                  required
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <!-- JS 會依學校自動填入 options -->
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs text-slate-600 mb-1">年級</label>
+                <select
+                  id="grade"
+                  required
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <!-- JS 依 level 設定自動填入 -->
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-600 mb-1">班級</label>
+                <select
+                  id="classNo"
+                  required
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <!-- JS 依 level 設定自動填入 -->
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-600 mb-1">座號</label>
+                <input
+                  type="number"
+                  id="seatNo"
+                  required
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <!-- min / max 由 JS 根據設定帶入 -->
+              </div>
+            </div>
+
+            <hr class="my-2 border-slate-200" />
+
+            <div>
+              <label class="block text-xs text-slate-600 mb-1">暱稱（顯示給其他人的名稱）</label>
+              <input
+                type="text"
+                id="nickname"
+                required
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-600 mb-1">Email（登入帳號）</label>
+              <input
+                type="email"
+                id="email"
+                required
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-600 mb-1">密碼</label>
+              <input
+                type="password"
+                id="password"
+                required
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+<!-- 使用條款勾選 -->
+<div class="flex items-start gap-2 mt-1">
+  <input
+    type="checkbox"
+    id="agreeTerms"
+    class="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-indigo-500 focus:ring-indigo-500"
+  />
+  <label for="agreeTerms" class="text-[11px] text-slate-600 leading-relaxed">
+    我已詳細閱讀並同意
+    <a href="index.html#terms" class="text-indigo-600 underline underline-offset-2">
+      「陶吉騎士團任務板」使用條款
+    </a>
+    與平台規範。
+  </label>
+</div>
+
+            <p id="message" class="text-xs text-rose-500 min-h-[1.2rem]"></p>
+
+            <div class="flex items-center justify-between mt-1">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-full bg-indigo-500 px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-indigo-400"
+              >
+                註冊帳號
+              </button>
+
+            <a href="login.html" class="text-xs text-indigo-600 hover:underline">
+              已有帳號？前往登入
+            </a>
+          </div>
+          <p id="message" class="text-red-500 text-sm"></p>
+
+<p class="mt-1 text-[11px] text-slate-400">
+  ※ 若幾分鐘內沒收到驗證信，請到垃圾郵件或促銷郵件匣裡找找，並按「這不是垃圾郵件」。
+</p>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  // 1. 匯入 Firebase SDK（用官方 CDN）
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+ import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    collection,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // 2. Firebase 設定（跟原本一樣）
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+
+  // === 部別設定：所有學校共用同一份模板 ===
+  // 之後如果要改「某間學校不一樣」，可以再拆出別的模板
+  const DEFAULT_LEVEL_TEMPLATES = {
+    // 國中部
+    junior: {
+      label: "國中部",
+      codePrefix: "J",   // 學號前綴：J3-12-25
+      grades: [1, 2, 3],
+      maxClassNo: 17,
+      maxSeatNo: 50
+    },
+    // 高中部
+    senior: {
+      label: "高中部",
+      codePrefix: "S",
+      grades: [1, 2, 3],
+      maxClassNo: 8,
+      maxSeatNo: 45
+    }
+  };
+
+  // Firestore 載回來的學校列表會塞在這裡
+  // key = schoolId（文件 ID），value = { id, name, levels: LEVEL_TEMPLATES }
+  let SCHOOL_CONFIG = {};
+
+  // 3. 初始化 Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // 取得表單元素
+  const form = document.getElementById("registerForm");
+  const messageEl = document.getElementById("message");
+
+  const schoolSelect = document.getElementById("schoolId");
+  const levelSelect = document.getElementById("schoolLevel");
+  const gradeSelect = document.getElementById("grade");
+  const classSelect = document.getElementById("classNo");
+  const seatInput = document.getElementById("seatNo");
+
+  // ✅ 同意條款 checkbox
+  const agreeTerms = document.getElementById("agreeTerms");
+
+  // 小工具：依部別產生年級顯示文字
+  function getGradeLabel(levelKey, grade) {
+    const zh = ["一", "二", "三", "四", "五", "六"];
+
+    if (levelKey === "junior") {
+      return `國${zh[grade - 1] || grade}`;
+    }
+    if (levelKey === "senior") {
+      return `高${zh[grade - 1] || grade}`;
+    }
+    return `${grade} 年級`;
+  }
+
+  // 🔸 從 Firestore 讀取 schools 集合，建立 SCHOOL_CONFIG + 學校下拉選單
+    async function loadSchoolsFromFirestore() {
+    try {
+      schoolSelect.innerHTML = "";
+      SCHOOL_CONFIG = {};
+
+      const snap = await getDocs(collection(db, "schools"));
+
+      snap.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        if (data.enabled === false) return;
+
+        const schoolId = docSnap.id;
+        const name = data.name || "未命名學校";
+
+        // ⭐ 從 Firestore 讀取每間學校自己的 levels
+        let levels = data.levels;
+
+        // 如果這間學校沒有設定 levels，就用預設的
+        if (!levels || typeof levels !== "object") {
+          levels = DEFAULT_LEVEL_TEMPLATES;
+        }
+
+        SCHOOL_CONFIG[schoolId] = {
+          id: schoolId,
+          name,
+          levels
+        };
+      });
+
+      // 如果完全沒有資料，就放一個預設
+      if (Object.keys(SCHOOL_CONFIG).length === 0) {
+        SCHOOL_CONFIG["weidao"] = {
+          id: "weidao",
+          name: "衛道中學（預設）",
+          levels: DEFAULT_LEVEL_TEMPLATES
+        };
+      }
+
+      populateSchoolOptions();
+      populateLevelOptions();
+      applyLevelConfig();
+    } catch (err) {
+      console.error("載入學校列表失敗：", err);
+      messageEl.textContent = "無法載入學校列表，請稍後再試。";
+
+      if (Object.keys(SCHOOL_CONFIG).length === 0) {
+        SCHOOL_CONFIG["weidao"] = {
+          id: "weidao",
+          name: "衛道中學（離線預設）",
+          levels: DEFAULT_LEVEL_TEMPLATES
+        };
+        populateSchoolOptions();
+        populateLevelOptions();
+        applyLevelConfig();
+      }
+    }
+  }
+
+
+  // 依據 SCHOOL_CONFIG 初始化學校選單
+  function populateSchoolOptions() {
+    schoolSelect.innerHTML = "";
+
+    Object.values(SCHOOL_CONFIG).forEach((schoolCfg) => {
+      const opt = document.createElement("option");
+      opt.value = schoolCfg.id;
+      opt.textContent = schoolCfg.name;
+      schoolSelect.appendChild(opt);
+    });
+
+    const firstSchoolId = Object.keys(SCHOOL_CONFIG)[0];
+    if (firstSchoolId) {
+      schoolSelect.value = firstSchoolId;
+    }
+  }
+
+  // 根據學校填入部別選項
+  function populateLevelOptions() {
+    const schoolId = schoolSelect.value;
+    const schoolCfg = SCHOOL_CONFIG[schoolId];
+    levelSelect.innerHTML = "";
+
+    if (!schoolCfg) return;
+
+    const levelKeys = Object.keys(schoolCfg.levels);
+    levelKeys.forEach((key) => {
+      const levelCfg = schoolCfg.levels[key];
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = levelCfg.label || key;
+      levelSelect.appendChild(opt);
+    });
+
+    if (levelKeys.length > 0) {
+      levelSelect.value = levelKeys[0];
+    }
+  }
+
+  // 根據目前學校 + 部別，填入年級 / 班級 / 座號限制
+  function applyLevelConfig() {
+    const schoolId = schoolSelect.value;
+    const schoolCfg = SCHOOL_CONFIG[schoolId];
+    if (!schoolCfg) return;
+
+    const levelKey = levelSelect.value;
+    const levelCfg = schoolCfg.levels[levelKey];
+    if (!levelCfg) return;
+
+    // 年級選單
+    gradeSelect.innerHTML = "";
+    levelCfg.grades.forEach((g) => {
+      const opt = document.createElement("option");
+      opt.value = String(g);
+      opt.textContent = getGradeLabel(levelKey, g);
+      gradeSelect.appendChild(opt);
+    });
+
+    // 班級選單（1 ~ maxClassNo）
+    classSelect.innerHTML = "";
+    for (let c = 1; c <= levelCfg.maxClassNo; c++) {
+      const opt = document.createElement("option");
+      opt.value = String(c);
+      opt.textContent = `${c} 班`;
+      classSelect.appendChild(opt);
+    }
+
+    // 座號輸入限制
+    seatInput.min = "1";
+    seatInput.max = String(levelCfg.maxSeatNo);
+    seatInput.placeholder = `1～${levelCfg.maxSeatNo} 號`;
+
+    if (seatInput.value) {
+      const currentSeat = parseInt(seatInput.value, 10);
+      if (
+        isNaN(currentSeat) ||
+        currentSeat < 1 ||
+        currentSeat > levelCfg.maxSeatNo
+      ) {
+        seatInput.value = "";
+      }
+    }
+  }
+
+  // 初始化整個學校 / 部別 / 年級 / 班級 / 座號 UI
+  async function initSchoolForm() {
+    await loadSchoolsFromFirestore();
+  }
+
+  // 綁定學校 / 部別變更事件
+  schoolSelect.addEventListener("change", () => {
+    populateLevelOptions();
+    applyLevelConfig();
+  });
+
+  levelSelect.addEventListener("change", () => {
+    applyLevelConfig();
+  });
+
+  // 一開始先初始化一次（會去 Firestore 抓 schools）
+  initSchoolForm();
+
+  // 表單送出
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    messageEl.textContent = "";
+
+    // ✅ 檢查是否勾選使用條款
+    if (!agreeTerms || !agreeTerms.checked) {
+      messageEl.textContent = "請先勾選「我已閱讀並同意使用條款」。";
+      return;
+    }
+
+    const schoolId = schoolSelect.value;
+    const schoolLevel = levelSelect.value;
+    const grade = parseInt(gradeSelect.value, 10);
+    const classNo = parseInt(classSelect.value, 10);
+    const seatNo = parseInt(seatInput.value, 10);
+    const nickname = document.getElementById("nickname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const schoolCfg = SCHOOL_CONFIG[schoolId];
+    if (!schoolCfg) {
+      messageEl.textContent = "找不到學校設定（schoolId 無效）。";
+      return;
+    }
+
+    const levelCfg = schoolCfg.levels[schoolLevel];
+    if (!levelCfg) {
+      messageEl.textContent = "找不到此部別的設定。";
+      return;
+    }
+
+    // 檢查年級
+    if (!levelCfg.grades.includes(grade)) {
+      messageEl.textContent = `年級必須是 ${levelCfg.grades.join("、")}。`;
+      return;
+    }
+
+    // 檢查班級
+    if (classNo < 1 || classNo > levelCfg.maxClassNo) {
+      messageEl.textContent = `班級必須在 1～${levelCfg.maxClassNo} 班之間。`;
+      return;
+    }
+
+    // 檢查座號
+    if (seatNo < 1 || seatNo > levelCfg.maxSeatNo) {
+      messageEl.textContent = `座號必須在 1～${levelCfg.maxSeatNo} 號之間。`;
+      return;
+    }
+
+    try {
+      // 用學校 + 部別 + 年級 + 班級 + 座號 組出唯一 key
+      const seatKey = `${schoolId}_${schoolLevel}_${grade}_${classNo}_${seatNo}`;
+
+      // ✅ seatKeys collection，文件 ID = seatKey
+      const seatDocRef = doc(db, "seatKeys", seatKey);
+      const seatSnap = await getDoc(seatDocRef);
+
+      if (seatSnap.exists()) {
+        messageEl.textContent =
+          "此座號在本學校與部別中已註冊帳號，請不要重複註冊。";
+        return;
+      }
+
+      // 建立 Firebase Auth 帳號
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // 用設定表產生學號（例：J3-12-25）
+      const prefix = levelCfg.codePrefix;
+      const studentCode = `${prefix}${grade}-${classNo}-${seatNo}`;
+
+      // 寫入 Firestore 使用者資料
+      await setDoc(doc(db, "users", user.uid), {
+        schoolId,
+        schoolName: schoolCfg.name,
+        schoolLevel, // junior / senior ...
+        grade,
+        classNo,
+        seatNo,
+        studentCode,
+        seatKey, // 保留 seatKey，之後查詢方便
+        nickname,
+        email,
+        createdAt: new Date()
+      });
+
+      // 同時把 seatKey 鎖起來（之後別人就不能用這個座號）
+      // 同時把 seatKey 鎖起來（之後別人就不能用這個座號）
+      await setDoc(seatDocRef, {
+        userId: user.uid,
+        schoolId,
+        schoolLevel,
+        grade,
+        classNo,
+        seatNo,
+        createdAt: new Date()
+      });
+
+      // ✅ 寄送 Email 驗證信
+      try {
+        await sendEmailVerification(user);
+        alert(
+          "註冊成功！已寄出 Email 驗證信，請先到信箱點擊驗證連結，再回來登入。"
+        );
+      } catch (e) {
+        console.error("寄送驗證信失敗：", e);
+        alert(
+          "註冊成功，但寄送驗證信時發生問題。\n" +
+          "請稍後到登入頁再試著按「忘記密碼」或重新登入來觸發驗證信。"
+        );
+      }
+
+      window.location.href = "login.html";
+    } catch (error) {
+      console.error(error);
+      messageEl.textContent = "註冊失敗：" + error.message;
+    }
+  });
+</script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

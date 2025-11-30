@@ -1,0 +1,374 @@
+/* === 顏色主題變數 === */
+:root {
+  --bg-color: white;
+  --card-color: #f8fafc;
+  --text-color: #1e293b;
+  --text-secondary: #475569;
+  --border-color: #cbd5e1;
+}
+
+html[data-theme='dark'] {
+  --bg-color: #020617;
+  --card-color: #0f172a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+}
+
+/* === 全站套用 === */
+body {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.card, .card-bg {
+  background-color: var(--card-color) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color);
+}
+
+:root {
+  --bg: #0f172a;
+  --bg-soft: #111827;
+  --card-bg: #ffffff;
+  --accent: #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.15);
+  --accent-strong: #4338ca;
+  --text-main: #0f172a;
+  --text-sub: #6b7280;
+  --border-soft: #e5e7eb;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.35);
+}
+
+/* 全域設定 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+  color: var(--text-main);
+}
+
+/* 整體框架 */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 上方導覽列 */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(
+    to right,
+    rgba(15, 23, 42, 0.95),
+    rgba(15, 23, 42, 0.85)
+  );
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.top-nav-inner {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 10px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e5e7eb;
+}
+
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 30% 20%, #f97316, #4f46e5);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+}
+
+.brand-title {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* 導覽列右側 */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+.nav-links a {
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+}
+
+.nav-links a:hover {
+  background: rgba(148, 163, 184, 0.16);
+  color: #f9fafb;
+}
+
+/* 頁面主體 */
+.page-content {
+  flex: 1;
+  padding: 24px 16px 40px;
+}
+
+.page-inner {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+/* 卡片 */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 22px 24px;
+  border: 1px solid var(--border-soft);
+}
+
+.card + .card {
+  margin-top: 16px;
+}
+
+/* 標題 */
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f9fafb;
+  margin: 0 0 14px;
+}
+
+.page-subtitle {
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 0 0 22px;
+}
+
+/* 表單 */
+form .field {
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-bottom: 4px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  background: #f9fafb;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.35);
+  background: white;
+}
+
+/* 按鈕 */
+button,
+.btn {
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.4);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+}
+
+button:hover,
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:active,
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+}
+
+/* 次要按鈕 */
+.btn-ghost {
+  background: transparent;
+  color: #e5e7eb;
+  box-shadow: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.btn-ghost:hover {
+  background: rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+/* 錯誤/提示訊息 */
+.message-error {
+  color: #b91c1c;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.message-ok {
+  color: #15803d;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* 任務列表 */
+.task-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+#taskList,
+#myCreatedList,
+#myTakenList {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#taskList li,
+#myCreatedList li,
+#myTakenList li {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 8px;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.task-main {
+  font-size: 14px;
+}
+
+.task-actions {
+  white-space: nowrap;
+}
+
+.task-actions button {
+  margin-left: 6px;
+}
+
+/* 聊天室 */
+.chat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#messages {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 10px;
+  height: 320px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.msg {
+  margin-bottom: 6px;
+}
+
+.msg .me {
+  color: var(--accent-strong);
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chat-input-row input[type="text"] {
+  flex: 1;
+}
+
+/* 登入/註冊頁置中 */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px);
+}
+
+.auth-card {
+  max-width: 420px;
+  width: 100%;
+}
+/* 強制 select 的下拉選單項目使用純黑字 */
+select option {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+select, select option {
+  color: #1f2937 !important; /* slate-800 */
+  background-color: #ffffff !important; /* 白色 */
+}

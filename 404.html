@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>404 找不到頁面 · 陶吉騎士團任務板</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pageBg: "#020617",
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 你原本的共用樣式 -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-pageBg text-slate-200">
+<div class="min-h-screen flex flex-col">
+
+  <!-- 頂部導覽列（簡化版，不用 Firebase） -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+          陶
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-slate-100">
+            陶吉騎士團任務板
+          </div>
+          <div class="text-xs text-slate-400">
+            校園互助任務平台 · 找不到頁面
+          </div>
+        </div>
+      </div>
+
+      <nav class="hidden sm:flex items-center gap-2 text-xs">
+        <a href="index.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+          首頁
+        </a>
+        <a href="tasks.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+          任務廣場
+        </a>
+        <a href="my_tasks.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+          我的任務
+        </a>
+        <a href="announcements.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70 text-slate-300">
+          公告
+        </a>
+        <a href="login.html" class="px-3 py-1 rounded-full border border-slate-600 text-slate-200 hover:bg-slate-800/80">
+          登入
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主內容 -->
+  <main class="flex-1 flex items-center">
+    <div class="max-w-3xl mx-auto px-4 py-12">
+      <div
+        class="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-slate-950/90 shadow-2xl shadow-slate-950/70">
+        <div class="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-fuchsia-500/20 blur-3xl"></div>
+
+        <div class="relative px-6 py-8 sm:px-10 sm:py-10 space-y-6">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center rounded-full bg-slate-800/80 px-3 py-1 text-[11px] text-slate-300 border border-slate-700">
+              404 · Page Not Found
+            </span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl font-bold text-slate-50 tracking-tight">
+            嗯？這個任務好像不在騎士團裡……
+          </h1>
+
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            你開啟的網址不存在、已被移除，或是輸入錯了。<br>
+            別擔心，騎士團的大門還開著，你可以：
+          </p>
+
+          <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">
+            <li>回到 <span class="font-semibold">任務廣場</span> 看看目前的委託</li>
+            <li>到 <span class="font-semibold">我的任務</span> 追蹤你正在進行的任務</li>
+            <li>回 <span class="font-semibold">首頁</span> 重新選擇你要前往的地方</li>
+          </ul>
+
+          <div class="flex flex-wrap gap-3 pt-2">
+            <a
+              href="tasks.html"
+              class="inline-flex items-center justify-center rounded-full bg-indigo-500 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-indigo-500/40 hover:bg-indigo-400"
+            >
+              回到任務廣場
+            </a>
+
+            <a
+              href="index.html"
+              class="inline-flex items-center justify-center rounded-full border border-slate-600 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-200 hover:bg-slate-800/80"
+            >
+              回首頁
+            </a>
+
+            <a
+              href="login.html"
+              class="inline-flex items-center justify-center rounded-full border border-emerald-400/70 px-4 py-2 text-xs sm:text-sm font-semibold text-emerald-200 hover:bg-emerald-500/20"
+            >
+              前往登入 / 註冊
+            </a>
+          </div>
+
+          <p class="pt-2 text-[11px] text-slate-500">
+            如果你是從「任務連結」或「聊天室連結」到這裡，有可能該任務已被刪除或權限變更。
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

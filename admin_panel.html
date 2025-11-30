@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>管理後台 - 陶吉騎士團任務板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pageBg: "#020617",
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-pageBg text-slate-100">
+<div class="min-h-screen flex flex-col">
+
+  <!-- 頂部導覽 -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-amber-400 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/40 flex items-center justify-center">
+          陶
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-slate-100">
+            陶吉騎士團任務板 · 管理後台
+          </div>
+          <div class="text-xs text-amber-300">
+            只有管理者帳號可進入
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 text-xs sm:text-sm">
+        <nav class="hidden sm:flex items-center gap-2 text-slate-300">
+          <a href="tasks.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70">任務廣場</a>
+          <a href="my_tasks.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70">我的任務</a>
+          <a href="task_history.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70">歷史紀錄</a>
+          <a href="profile.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70">個人資料</a>
+          <a href="reports_admin.html" class="px-3 py-1 rounded-full hover:bg-slate-800/70">
+            回報列表
+          </a>
+          <span class="px-3 py-1 rounded-full bg-slate-800/80 text-amber-300 border border-amber-400/40">
+            管理工具
+          </span>
+        </nav>
+
+        <span id="adminUserInfo"
+              class="hidden sm:inline text-[11px] text-slate-300 max-w-[180px] truncate text-right"></span>
+
+        <button
+          id="logoutBtn"
+          class="px-3 py-1 rounded-full text-[11px] border border-slate-600 text-slate-200 hover:bg-slate-800/80">
+          登出
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 內容 -->
+  <main class="flex-1">
+    <div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+      <!-- 提示 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 text-xs sm:text-sm">
+        <h1 class="text-sm font-semibold text-slate-50 mb-2">
+          管理工具總覽
+        </h1>
+        <ul class="list-disc list-inside space-y-1 text-slate-300">
+          <li>封鎖 / 解除封鎖使用者（寫入 users.isBanned）。</li>
+          <li>重設 Knight 信任分數：刪除所有「給這位使用者」的評價（task_reviews → toUserId）。</li>
+          <li>下架任務：把任務 status 改成 <code>removedByAdmin</code>，一般列表不再顯示。</li>
+          <li>查看指定任務的所有聊天室訊息（messages）。</li>
+        </ul>
+      </section>
+
+      <!-- 使用者管理 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-semibold text-slate-50">
+            使用者管理（封鎖 / 重設 Knight）
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            以 Email 或 UID 搜尋
+          </span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            id="userSearchInput"
+            type="text"
+            class="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="輸入使用者 Email 或 UID"
+          />
+          <button
+            id="userSearchBtn"
+            class="px-3 py-2 rounded-xl bg-indigo-500 text-xs sm:text-sm font-semibold text-white hover:bg-indigo-400">
+            搜尋使用者
+          </button>
+        </div>
+
+        <p id="userSearchMsg" class="text-[11px] text-slate-400 min-h-[1rem]"></p>
+
+        <div id="userResultBox" class="hidden rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-3 text-xs sm:text-sm space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="font-semibold text-slate-50" id="userNicknameLabel"></div>
+              <div class="text-[11px] text-slate-400" id="userEmailLabel"></div>
+              <div class="text-[11px] text-slate-400" id="userUidLabel"></div>
+            </div>
+            <div class="text-right text-[11px] text-slate-400" id="userSchoolLabel"></div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="userBanStatusTag"
+                  class="inline-flex items-center rounded-full border border-slate-500 px-2 py-0.5 text-[11px] text-slate-300">
+              狀態載入中…
+            </span>
+            <button
+              id="banUserBtn"
+              class="px-2.5 py-1 rounded-full text-[11px] bg-rose-500/20 text-rose-200 border border-rose-400/60 hover:bg-rose-500/30">
+              封鎖此帳號
+            </button>
+            <button
+              id="unbanUserBtn"
+              class="px-2.5 py-1 rounded-full text-[11px] bg-emerald-500/20 text-emerald-200 border border-emerald-400/60 hover:bg-emerald-500/30">
+              解除封鎖
+            </button>
+            <button
+              id="resetTrustBtn"
+              class="px-2.5 py-1 rounded-full text-[11px] bg-amber-500/20 text-amber-100 border border-amber-400/60 hover:bg-amber-500/30">
+              重設 Knight 評價（清空給他的評價）
+            </button>
+          </div>
+        </div>
+      </section> <!-- ★ 管理員多校查看模式設定 -->
+      <section class="rounded-2xl border border-emerald-700/60 bg-emerald-950/40 p-4 text-xs sm:text-sm">
+        <h2 class="text-sm font-semibold text-emerald-100 mb-2">
+          管理員多校查看模式
+        </h2>
+        <p class="text-emerald-100 mb-2">
+          開啟後，「任務廣場 / 我的任務」等頁面會顯示<span class="font-semibold">所有學校</span>的任務，
+          而不只是一個 schoolId。只會對管理員帳號生效。
+        </p>
+        <label class="inline-flex items-center gap-2 text-[11px] text-emerald-100">
+          <input
+            id="multiSchoolToggle"
+            type="checkbox"
+            class="rounded border-emerald-400 bg-emerald-900"
+          />
+          啟用多校查看模式（顯示所有學校）
+        </label>
+        <p id="multiSchoolMsg" class="mt-2 text-[11px] text-emerald-300 min-h-[1.2rem]"></p>
+      </section>
+      <!-- 任務管理 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-semibold text-slate-50">
+            任務管理（下架任務）
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            以任務 ID 搜尋
+          </span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            id="taskSearchInput"
+            type="text"
+            class="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="輸入任務 ID（網址上的 ?id=xxx 那串）"
+          />
+          <button
+            id="taskSearchBtn"
+            class="px-3 py-2 rounded-xl bg-indigo-500 text-xs sm:text-sm font-semibold text-white hover:bg-indigo-400">
+            搜尋任務
+          </button>
+        </div>
+
+        <p id="taskSearchMsg" class="text-[11px] text-slate-400 min-h-[1rem]"></p>
+
+        <div id="taskResultBox" class="hidden rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-3 text-xs sm:text-sm space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="font-semibold text-slate-50" id="taskTitleLabel"></div>
+              <div class="text-[11px] text-slate-400" id="taskMetaLabel"></div>
+            </div>
+            <div class="text-right text-[11px] text-slate-400">
+              <div id="taskStatusLabel"></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              id="removeTaskBtn"
+              class="px-3 py-1.5 rounded-full text-[11px] bg-rose-500/20 text-rose-100 border border-rose-400/70 hover:bg-rose-500/30">
+              將任務標記為已下架（status = removedByAdmin）
+            </button>
+          </div>
+        </div>
+      </section>
+       <!-- 官方公告管理 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-semibold text-slate-50">
+            官方公告管理（Announcements）
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            由管理員發布，所有使用者在公告頁可以看到
+          </span>
+        </div>
+
+        <!-- 新增公告表單 -->
+        <form id="annForm" class="space-y-3 text-xs sm:text-sm text-slate-100">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">
+              公告標題
+            </label>
+            <input
+              id="annTitle"
+              type="text"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm
+                     placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="例：系統維護通知 / 新功能上線"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">
+              公告內容
+            </label>
+            <textarea
+              id="annContent"
+              rows="4"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm
+                     placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="請輸入詳細說明，例如：維護時間、影響範圍、聯絡方式…"
+              required
+            ></textarea>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <label class="inline-flex items-center gap-2 text-[11px] text-slate-300">
+              <input id="annImportant" type="checkbox" class="rounded border-slate-600 bg-slate-900" />
+              設為重要公告（列表中會加上「重要」標記）
+            </label>
+
+            <button
+              type="submit"
+              class="px-4 py-1.5 rounded-full text-[11px] font-semibold bg-indigo-500 text-white hover:bg-indigo-400"
+            >
+              發布公告
+            </button>
+          </div>
+
+          <p id="annMsg" class="text-[11px] text-slate-400 min-h-[1.2rem]"></p>
+        </form>
+
+        <!-- 公告列表（最新在上） -->
+        <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-3 max-h-96 overflow-y-auto">
+          <ul id="annList" class="space-y-3 text-xs sm:text-sm">
+            <!-- 由 JS 動態插入 -->
+          </ul>
+        </div>
+      </section>
+      <!-- 學校申請管理 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-semibold text-slate-50">
+            學校申請管理（school_requests → schools）
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            審核使用者送出的「新增學校」申請
+          </span>
+        </div>
+
+        <p id="schoolReqMsg" class="text-[11px] text-slate-400 min-h-[1.2rem]">
+          載入中…
+        </p>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-3 max-h-96 overflow-y-auto">
+          <ul id="schoolReqList" class="space-y-3 text-xs sm:text-sm">
+            <!-- 由 JS 動態插入 -->
+          </ul>
+        </div>
+
+        <p class="text-[11px] text-slate-500">
+          提醒：目前流程是
+          <span class="font-semibold text-slate-100">school_requests（使用者申請） → 按下「加入 schools」→ 建立 schools 集合文件 → 更新申請狀態</span>。
+          之後 register.html 可以改為從 <code>schools</code> 集合載入學校清單。
+        </p>
+      </section>
+      <!-- 建立 / 更新學校設定（手動填入 → 自動上傳到 /schools） -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-semibold text-slate-50">
+            建立 / 更新學校設定（schools）
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            審核完申請後，在這裡手動輸入 → 自動寫入 Firestore /schools
+          </span>
+        </div>
+
+        <form id="schoolConfigForm" class="space-y-3 text-xs sm:text-sm text-slate-100">
+          <div class="grid gap-3 md:grid-cols-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                學校文件 ID（必填，之後註冊用的 schoolId）
+              </label>
+              <input
+                id="cfgSchoolId"
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：weidao、taichung1、my_school_1"
+                required
+              />
+              <p class="mt-1 text-[10px] text-slate-500">
+                建議用英文小寫 + 底線，不要有空白。註冊時會用到這個 schoolId。
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                學校名稱（顯示用）
+              </label>
+              <input
+                id="cfgSchoolName"
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：衛道中學"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                部別 key（junior / senior ...）
+              </label>
+              <input
+                id="cfgLevelKey"
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：junior"
+                value="junior"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                部別名稱 label
+              </label>
+              <input
+                id="cfgLevelLabel"
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：國中部"
+                value="國中部"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                學號前綴 codePrefix
+              </label>
+              <input
+                id="cfgCodePrefix"
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：J、S"
+                value="J"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                年級數（gradeCount）
+              </label>
+              <input
+                id="cfgGradeCount"
+                type="number"
+                min="1"
+                max="9"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：3"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                每年級班級數（classCount）
+              </label>
+              <input
+                id="cfgClassCount"
+                type="number"
+                min="1"
+                max="40"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：12"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">
+                每班最大人數（maxSeatPerClass）
+              </label>
+              <input
+                id="cfgMaxSeat"
+                type="number"
+                min="1"
+                max="60"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm"
+                placeholder="例：40"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="inline-flex items-center gap-2 text-[11px] text-slate-300">
+              <input id="cfgEnabled" type="checkbox" class="rounded border-slate-600 bg-slate-900" checked />
+              啟用這間學校（enabled: true）
+            </label>
+          </div>
+
+          <p id="schoolConfigMsg" class="text-[11px] text-slate-400 min-h-[1.2rem]"></p>
+
+          <div class="flex flex-wrap justify-end gap-2">
+            <button
+              type="button"
+              id="fillFromSelectedReqBtn"
+              class="px-3 py-1 rounded-full text-[11px] border border-slate-600 text-slate-200 hover:bg-slate-800/80"
+            >
+              從選取的申請填入（之後可加）
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-1.5 rounded-full text-[11px] font-semibold bg-indigo-500 text-white hover:bg-indigo-400"
+            >
+              寫入 /schools（建立或更新）
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 訊息檢視 -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-semibold text-slate-50">
+            訊息檢視（查看某任務的所有聊天）
+          </h2>
+          <span class="text-[11px] text-slate-400">
+            以任務 ID 搜尋 messages
+          </span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            id="msgTaskIdInput"
+            type="text"
+            class="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="輸入任務 ID"
+          />
+          <button
+            id="loadMessagesBtn"
+            class="px-3 py-2 rounded-xl bg-indigo-500 text-xs sm:text-sm font-semibold text-white hover:bg-indigo-400">
+            載入該任務所有訊息
+          </button>
+        </div>
+
+        <p id="messagesMsg" class="text-[11px] text-slate-400 min-h-[1rem]"></p>
+
+        <div id="messagesList" class="max-h-80 overflow-y-auto space-y-2 text-xs sm:text-sm">
+          <!-- 動態插入訊息 -->
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,          // ⭐ 新增
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  onSnapshot,
+  orderBy,
+  deleteDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+
+  const ADMIN_UID = "kQ3myHuzPDOrpUoNZSWv67d5rp72";
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+    authDomain: "taoki-knight-board.firebaseapp.com",
+    projectId: "taoki-knight-board",
+    storageBucket: "taoki-knight-board.firebasestorage.app",
+    messagingSenderId: "319225747276",
+    appId: "1:319225747276:web:5556b601dca17e760121e9"
+  };
+ // ★ 新增：多校查看模式 用 localStorage 存旗標
+  const ADMIN_MULTI_SCHOOL_KEY = "tkb_admin_multi_school_view";
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const adminUserInfo = document.getElementById("adminUserInfo");
+  const logoutBtn = document.getElementById("logoutBtn");
+ // ★ 新增：多校查看 UI 元素
+  const multiSchoolToggle = document.getElementById("multiSchoolToggle");
+  const multiSchoolMsg = document.getElementById("multiSchoolMsg");
+  // 使用者管理元素
+  const userSearchInput = document.getElementById("userSearchInput");
+  const userSearchBtn = document.getElementById("userSearchBtn");
+  const userSearchMsg = document.getElementById("userSearchMsg");
+  const userResultBox = document.getElementById("userResultBox");
+  const userNicknameLabel = document.getElementById("userNicknameLabel");
+  const userEmailLabel = document.getElementById("userEmailLabel");
+  const userUidLabel = document.getElementById("userUidLabel");
+  const userSchoolLabel = document.getElementById("userSchoolLabel");
+  const userBanStatusTag = document.getElementById("userBanStatusTag");
+  const banUserBtn = document.getElementById("banUserBtn");
+  const unbanUserBtn = document.getElementById("unbanUserBtn");
+  const resetTrustBtn = document.getElementById("resetTrustBtn");
+  let currentTargetUserId = null;
+
+  // 任務管理元素
+  const taskSearchInput = document.getElementById("taskSearchInput");
+  const taskSearchBtn = document.getElementById("taskSearchBtn");
+  const taskSearchMsg = document.getElementById("taskSearchMsg");
+  const taskResultBox = document.getElementById("taskResultBox");
+  const taskTitleLabel = document.getElementById("taskTitleLabel");
+  const taskMetaLabel = document.getElementById("taskMetaLabel");
+  const taskStatusLabel = document.getElementById("taskStatusLabel");
+  const removeTaskBtn = document.getElementById("removeTaskBtn");
+  let currentTaskId = null;
+
+  // 訊息檢視元素
+  const msgTaskIdInput = document.getElementById("msgTaskIdInput");
+  const loadMessagesBtn = document.getElementById("loadMessagesBtn");
+  const messagesMsg = document.getElementById("messagesMsg");
+  const messagesList = document.getElementById("messagesList");
+const schoolReqMsg = document.getElementById("schoolReqMsg");
+const schoolReqList = document.getElementById("schoolReqList");
+  // 學校設定表單元素（手動填 → /schools）
+  const schoolConfigForm = document.getElementById("schoolConfigForm");
+  const cfgSchoolId = document.getElementById("cfgSchoolId");
+  const cfgSchoolName = document.getElementById("cfgSchoolName");
+  const cfgLevelKey = document.getElementById("cfgLevelKey");
+  const cfgLevelLabel = document.getElementById("cfgLevelLabel");
+  const cfgCodePrefix = document.getElementById("cfgCodePrefix");
+  const cfgGradeCount = document.getElementById("cfgGradeCount");
+  const cfgClassCount = document.getElementById("cfgClassCount");
+  const cfgMaxSeat = document.getElementById("cfgMaxSeat");
+  const cfgEnabled = document.getElementById("cfgEnabled");
+  const schoolConfigMsg = document.getElementById("schoolConfigMsg");
+  // === 官方公告管理元素 ===
+  const annForm       = document.getElementById("annForm");
+  const annTitleInput = document.getElementById("annTitle");
+  const annContentInput = document.getElementById("annContent");
+  const annImportantInput = document.getElementById("annImportant");
+  const annMsg        = document.getElementById("annMsg");
+  const annList       = document.getElementById("annList");
+  // 建立 / 更新學校設定：手動填 → 寫入 /schools
+  if (schoolConfigForm) {
+    schoolConfigForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      schoolConfigMsg.style.color = "#9ca3af"; // slate-400
+      schoolConfigMsg.textContent = "";
+
+      const schoolId = (cfgSchoolId.value || "").trim();
+      const schoolName = (cfgSchoolName.value || "").trim();
+      const levelKey = (cfgLevelKey.value || "").trim() || "junior";
+      const levelLabel = (cfgLevelLabel.value || "").trim() || "國中部";
+      const codePrefix = (cfgCodePrefix.value || "").trim() || "J";
+
+      const gradeCount = parseInt(cfgGradeCount.value, 10);
+      const classCount = parseInt(cfgClassCount.value, 10);
+      const maxSeat = parseInt(cfgMaxSeat.value, 10);
+
+      if (!schoolId) {
+        schoolConfigMsg.textContent = "請先輸入學校文件 ID（schoolId）。";
+        return;
+      }
+
+      if (!Number.isInteger(gradeCount) || gradeCount <= 0) {
+        schoolConfigMsg.textContent = "請填寫正確的年級數。";
+        return;
+      }
+      if (!Number.isInteger(classCount) || classCount <= 0) {
+        schoolConfigMsg.textContent = "請填寫正確的每年級班級數。";
+        return;
+      }
+      if (!Number.isInteger(maxSeat) || maxSeat <= 0) {
+        schoolConfigMsg.textContent = "請填寫正確的每班最大人數。";
+        return;
+      }
+
+      // 依年級數組出 [1,2,3,...] 的 grades
+      const grades = [];
+      for (let i = 1; i <= gradeCount; i++) {
+        grades.push(i);
+      }
+
+      const enabled = !!(cfgEnabled && cfgEnabled.checked);
+
+      const payload = {
+        name: schoolName || schoolId,
+        enabled,
+        levels: {
+          [levelKey]: {
+            label: levelLabel,
+            codePrefix,
+            grades,
+            maxClassNo: classCount,
+            maxSeatNo: maxSeat
+          }
+        },
+        updatedAt: new Date()
+      };
+
+      try {
+        // 用 setDoc + merge: true，可以覆蓋或新增這一間學校
+        const ref = doc(db, "schools", schoolId);
+        await setDoc(ref, payload, { merge: true });
+
+        schoolConfigMsg.style.color = "#4ade80"; // 綠色
+        schoolConfigMsg.textContent = "已成功寫入 /schools！註冊頁可以使用這間學校設定。";
+      } catch (err) {
+        console.error(err);
+        schoolConfigMsg.style.color = "#f87171"; // 紅色
+        schoolConfigMsg.textContent = "寫入 /schools 失敗：" + err.message;
+      }
+    });
+      // 建立新公告
+  if (annForm) {
+    annForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      annMsg.style.color = "#9ca3af"; // slate-400
+      annMsg.textContent = "";
+
+      const title = (annTitleInput.value || "").trim();
+      const content = (annContentInput.value || "").trim();
+      const important = !!(annImportantInput && annImportantInput.checked);
+
+      if (!title) {
+        annMsg.textContent = "請輸入公告標題。";
+        return;
+      }
+      if (!content) {
+        annMsg.textContent = "請輸入公告內容。";
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "announcements"), {
+          title,
+          content,
+          important,
+          createdAt: new Date()
+        });
+
+        annForm.reset();
+        annMsg.style.color = "#4ade80"; // 綠色
+        annMsg.textContent = "公告已發布。";
+        setTimeout(() => {
+          annMsg.textContent = "";
+          annMsg.style.color = "#9ca3af";
+        }, 2000);
+      } catch (err) {
+        console.error(err);
+        annMsg.style.color = "#f87171"; // 紅色
+        annMsg.textContent = "發布公告失敗：" + err.message;
+      }
+    });
+  }
+
+  }
+
+// ★ 新增這行（一定要在 subscribeSchoolRequests() 之前）
+const schoolReqDocs = new Map();
+  function escapeHtml(str = "") {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function formatTs(ts) {
+    if (!ts || !ts.toDate) return "";
+    const d = ts.toDate();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${y}/${m}/${day} ${hh}:${mm}`;
+  }
+    // 監聽公告列表（最新在上）
+  function subscribeAnnouncementsAdmin() {
+    if (!annList) return;
+
+    const annRef = collection(db, "announcements");
+    const q = query(annRef, orderBy("createdAt", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+      annList.innerHTML = "";
+
+      if (snapshot.empty) {
+        const li = document.createElement("li");
+        li.className = "text-[11px] text-slate-400";
+        li.textContent = "目前沒有任何公告。";
+        annList.appendChild(li);
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        const li = document.createElement("li");
+        li.className =
+          "rounded-xl border border-slate-700 bg-slate-900/90 px-3 py-2 flex flex-col gap-1";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "flex items-center justify-between gap-2";
+
+        const titleSpan = document.createElement("div");
+        titleSpan.className = "font-semibold text-slate-50 text-xs sm:text-sm";
+        titleSpan.textContent = data.title || "(未命名公告)";
+
+        const rightBox = document.createElement("div");
+        rightBox.className = "flex items-center gap-2 text-[11px]";
+
+        if (data.important) {
+          const tag = document.createElement("span");
+          tag.className =
+            "inline-flex items-center rounded-full border border-amber-400/60 bg-amber-500/20 px-2 py-0.5 text-amber-100";
+          tag.textContent = "重要";
+          rightBox.appendChild(tag);
+        }
+
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "text-slate-400";
+        timeSpan.textContent = formatTs(data.createdAt);
+        rightBox.appendChild(timeSpan);
+
+        const delBtn = document.createElement("button");
+        delBtn.className =
+          "px-2 py-0.5 rounded-full border border-rose-400/60 bg-rose-500/20 text-rose-100 hover:bg-rose-500/30";
+        delBtn.textContent = "刪除";
+        delBtn.addEventListener("click", async () => {
+          if (!confirm("確定要刪除這則公告嗎？刪除後所有使用者都看不到。")) return;
+          try {
+            await deleteDoc(doc(db, "announcements", docSnap.id));
+          } catch (err) {
+            console.error(err);
+            alert("刪除公告失敗：" + err.message);
+          }
+        });
+
+        rightBox.appendChild(delBtn);
+
+        titleRow.appendChild(titleSpan);
+        titleRow.appendChild(rightBox);
+
+        const contentP = document.createElement("p");
+        contentP.className = "text-[11px] sm:text-xs text-slate-200 whitespace-pre-wrap";
+        contentP.textContent = data.content || "";
+
+        li.appendChild(titleRow);
+        li.appendChild(contentP);
+        annList.appendChild(li);
+      });
+    });
+  }
+
+  // 登出
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "login.html";
+    } catch (err) {
+      console.error(err);
+      alert("登出失敗，請稍後再試一次");
+    }
+  });
+
+  // 監聽登入狀態 & 管理者檢查
+   onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (user.uid !== ADMIN_UID) {
+      alert("你沒有權限查看管理後台。");
+      window.location.href = "tasks.html";
+      return;
+    }
+
+        adminUserInfo.textContent = user.email || user.uid;
+    // ✅ 只有管理員登入後才開始監聽
+    subscribeSchoolRequests();
+    subscribeAnnouncementsAdmin();   // ⭐ 新增：監聽公告
+
+
+    // ★ 只有管理員登入後才處理多校查看 UI
+    if (multiSchoolToggle && multiSchoolMsg) {
+      const flag = localStorage.getItem(ADMIN_MULTI_SCHOOL_KEY) === "1";
+      multiSchoolToggle.checked = flag;
+      multiSchoolMsg.textContent = flag
+        ? "目前為：多校查看模式（任務廣場 / 我的任務會顯示所有學校）"
+        : "目前為：單校模式（只顯示自己學校的任務）";
+
+      multiSchoolToggle.addEventListener("change", () => {
+        const enabled = multiSchoolToggle.checked;
+        localStorage.setItem(ADMIN_MULTI_SCHOOL_KEY, enabled ? "1" : "0");
+        multiSchoolMsg.textContent = enabled
+          ? "已切換為多校查看模式，下次在任務廣場 / 我的任務重新載入後生效。"
+          : "已切換為單校模式，下次在任務廣場 / 我的任務重新載入後生效。";
+      });
+    }
+
+    // ✅ 只有管理員登入後才開始監聽學校申請
+    subscribeSchoolRequests();
+  });
+  // ============= 使用者搜尋 & 封鎖 =============
+  userSearchBtn.addEventListener("click", async () => {
+    const keyword = userSearchInput.value.trim();
+    userSearchMsg.textContent = "";
+    userResultBox.classList.add("hidden");
+    currentTargetUserId = null;
+
+    if (!keyword) {
+      userSearchMsg.textContent = "請輸入 Email 或 UID。";
+      return;
+    }
+
+    try {
+      let targetDoc = null;
+
+      // 如果看起來像 UID（28~36 位隨機字串），先試讀 /users/{uid}
+      if (keyword.length >= 20) {
+        const docRef = doc(db, "users", keyword);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          targetDoc = snap;
+        }
+      }
+
+      // 如果還沒找到，當成 email 來查
+      if (!targetDoc) {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", keyword));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          targetDoc = snap.docs[0];
+        }
+      }
+
+      if (!targetDoc) {
+        userSearchMsg.textContent = "找不到這個使用者。";
+        return;
+      }
+
+      const data = targetDoc.data();
+      currentTargetUserId = targetDoc.id;
+
+      userNicknameLabel.textContent = data.nickname || "(未設定暱稱)";
+      userEmailLabel.textContent = `Email：${data.email || "未知"}`;
+      userUidLabel.textContent = `UID：${targetDoc.id}`;
+      userSchoolLabel.textContent =
+        (data.schoolName || data.schoolId || "未知學校") +
+        (data.grade ? ` · ${data.grade} 年 ${data.classNo || ""} 班` : "");
+
+      const isBanned = !!data.isBanned;
+      if (isBanned) {
+        userBanStatusTag.textContent = "目前狀態：已封鎖";
+        userBanStatusTag.className =
+          "inline-flex items-center rounded-full border border-rose-400/70 px-2 py-0.5 text-[11px] bg-rose-500/20 text-rose-100";
+      } else {
+        userBanStatusTag.textContent = "目前狀態：正常";
+        userBanStatusTag.className =
+          "inline-flex items-center rounded-full border border-emerald-400/70 px-2 py-0.5 text-[11px] bg-emerald-500/15 text-emerald-100";
+      }
+
+      userResultBox.classList.remove("hidden");
+      userSearchMsg.textContent = "";
+    } catch (err) {
+      console.error(err);
+      userSearchMsg.textContent = "搜尋失敗，請稍後再試一次。";
+    }
+  });
+
+  banUserBtn.addEventListener("click", async () => {
+  if (!currentTargetUserId) {
+    alert("請先搜尋並選擇要封鎖的使用者。");
+    return;
+  }
+
+  const reason = window.prompt(
+    "請輸入封鎖原因（這段文字會顯示給該使用者）：",
+    "違反「陶吉騎士團任務板」使用規範"
+  );
+
+  // 按「取消」就不封鎖
+  if (reason === null) return;
+
+  if (!confirm("確定要封鎖這位使用者嗎？")) {
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", currentTargetUserId);
+    await updateDoc(userRef, {
+      isBanned: true,
+      bannedAt: new Date(),
+      banReason: (reason || "違反「陶吉騎士團任務板」使用規範").trim()
+    });
+
+    alert("已封鎖該使用者。");
+    userBanStatusTag.textContent = "已封鎖";
+    userBanStatusTag.className =
+      "inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[11px] text-rose-300 border border-rose-400/40";
+  } catch (err) {
+    console.error(err);
+    alert("封鎖失敗：" + err.message);
+  }
+});
+
+
+  unbanUserBtn.addEventListener("click", async () => {
+    if (!currentTargetUserId) return;
+    if (!confirm("要解除封鎖這個帳號嗎？")) return;
+
+    try {
+      await updateDoc(doc(db, "users", currentTargetUserId), {
+        isBanned: false
+      });
+      userSearchBtn.click();
+      alert("已解除封鎖。");
+    } catch (err) {
+      console.error(err);
+      alert("解除封鎖失敗，請稍後再試。");
+    }
+    await updateDoc(userRef, {
+  isBanned: false,
+  bannedAt: null,
+  banReason: ""
+});
+  });
+
+  // 重設 Knight：刪除所有給他的評價（toUserId = 此 UID）
+  resetTrustBtn.addEventListener("click", async () => {
+    if (!currentTargetUserId) return;
+    if (!confirm("這會刪除所有『給這位使用者』的評價紀錄，確定要重設嗎？")) return;
+
+    try {
+      const reviewsRef = collection(db, "task_reviews");
+      const q = query(reviewsRef, where("toUserId", "==", currentTargetUserId));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        alert("目前沒有任何評價，不需重設。");
+        return;
+      }
+
+      // 逐筆刪除（數量通常不多）
+      const batchDeletes = [];
+      for (const docSnap of snap.docs) {
+        batchDeletes.push(docSnap.ref.delete());
+      }
+      await Promise.all(batchDeletes);
+
+      alert(`已刪除 ${snap.size} 筆評價，Knight 信任分數已重設。`);
+    } catch (err) {
+      console.error(err);
+      alert("重設失敗，請稍後再試。");
+    }
+  });
+
+  // ============= 任務搜尋 & 下架 =============
+  taskSearchBtn.addEventListener("click", async () => {
+    const id = taskSearchInput.value.trim();
+    taskSearchMsg.textContent = "";
+    taskResultBox.classList.add("hidden");
+    currentTaskId = null;
+
+    if (!id) {
+      taskSearchMsg.textContent = "請輸入任務 ID。";
+      return;
+    }
+
+    try {
+      const ref = doc(db, "tasks", id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        taskSearchMsg.textContent = "找不到這個任務。";
+        return;
+      }
+
+      const data = snap.data();
+      currentTaskId = id;
+
+      taskTitleLabel.textContent = data.title || "(無標題)";
+      taskMetaLabel.textContent =
+        `狀態：${data.status || "未知"} ｜ 發單者：${data.creatorId || "?"} ｜ 接單者：${data.takerId || "尚未接單"}`;
+      taskStatusLabel.textContent = data.status === "removedByAdmin"
+        ? "目前為：已下架（removedByAdmin）"
+        : `目前為：${data.status || "未知"}`;
+
+      taskResultBox.classList.remove("hidden");
+    } catch (err) {
+      console.error(err);
+      taskSearchMsg.textContent = "搜尋失敗，請稍後再試。";
+    }
+  });
+
+  removeTaskBtn.addEventListener("click", async () => {
+    if (!currentTaskId) return;
+    if (!confirm("確定要將此任務標記為『已下架』嗎？\n一般任務列表將不再顯示。")) return;
+
+    try {
+      const ref = doc(db, "tasks", currentTaskId);
+      await updateDoc(ref, {
+        status: "removedByAdmin",
+        removedByAdmin: true,
+        removedAt: new Date()
+      });
+      alert("已標記為下架。");
+      taskSearchBtn.click();
+    } catch (err) {
+      console.error(err);
+      alert("下架失敗，請稍後再試。");
+    }
+  });
+
+  // ============= 訊息檢視 =============
+  loadMessagesBtn.addEventListener("click", async () => {
+    const taskId = msgTaskIdInput.value.trim();
+    messagesMsg.textContent = "";
+    messagesList.innerHTML = "";
+
+    if (!taskId) {
+      messagesMsg.textContent = "請輸入任務 ID。";
+      return;
+    }
+
+    try {
+      const msgsRef = collection(db, "messages");
+const q = query(
+  msgsRef,
+  where("taskId", "==", taskId)
+);
+const snap = await getDocs(q);
+// 👉 在前端自己依 createdAt 排序（舊 → 新）
+const docs = snap.docs.slice().sort((a, b) => {
+  const da = a.data().createdAt;
+  const db_ = b.data().createdAt;
+  if (!da || !da.toDate) return -1;
+  if (!db_ || !db_.toDate) return 1;
+  return da.toDate() - db_.toDate();
+});
+
+      if (snap.empty) {
+        messagesMsg.textContent = "沒有找到任何訊息。";
+        return;
+      }
+
+      messagesMsg.textContent = `共 ${snap.size} 則訊息：`;
+      docs.forEach((docSnap) => {
+  const m = docSnap.data();
+  const div = document.createElement("div");
+  div.className =
+    "rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2";
+  div.innerHTML = `
+    <div class="flex items-center justify-between gap-2 mb-1">
+      <div class="text-[11px] text-slate-300">
+        fromUserId：${escapeHtml(m.fromUserId || "")}
+      </div>
+      <div class="text-[11px] text-slate-500">
+        ${formatTs(m.createdAt)}
+      </div>
+    </div>
+    <div class="text-xs sm:text-sm text-slate-100 whitespace-pre-wrap break-words">
+      ${escapeHtml(m.text || m.message || "")}
+    </div>
+  `;
+  messagesList.appendChild(div);
+});
+    } catch (err) {
+      console.error(err);
+      messagesMsg.textContent = "載入失敗，請稍後再試。";
+    }
+  });
+    // ============= 學校申請管理（school_requests → schools） =============
+
+  // 顯示 level 的文字
+  function getLevelLabel(level) {
+    if (level === "junior") return "國中";
+    if (level === "senior") return "高中 / 高職";
+    if (level === "elementary") return "國小";
+    if (level === "college") return "大學 / 專科";
+    if (level === "other") return "其他 / 未分類";
+    return level || "未指定";
+  }
+
+  function subscribeSchoolRequests() {
+    if (!schoolReqList || !schoolReqMsg) return;
+
+    schoolReqMsg.textContent = "載入中…";
+
+    const reqRef = collection(db, "school_requests");
+    const q = query(reqRef, orderBy("createdAt", "desc"));
+
+    onSnapshot(
+      q,
+      (snapshot) => {
+        schoolReqDocs.clear();
+        schoolReqList.innerHTML = "";
+
+        if (snapshot.empty) {
+          schoolReqMsg.textContent = "目前沒有任何學校新增申請。";
+          return;
+        }
+
+        schoolReqMsg.textContent = `共 ${snapshot.size} 筆申請：`;
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() || {};
+          const id = docSnap.id;
+          schoolReqDocs.set(id, data);
+
+          const li = document.createElement("li");
+
+          const status = data.status || "pending";
+          let statusLabel = "";
+          let statusClass =
+            "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px]";
+
+          if (status === "pending") {
+            statusLabel = "待處理";
+            statusClass +=
+              " border-amber-400/70 bg-amber-500/15 text-amber-100";
+          } else if (status === "approved") {
+            statusLabel = "已加入 schools";
+            statusClass +=
+              " border-emerald-400/70 bg-emerald-500/15 text-emerald-100";
+          } else if (status === "rejected") {
+            statusLabel = "已標記為處理完畢";
+            statusClass +=
+              " border-slate-500/70 bg-slate-800 text-slate-200";
+          } else {
+            statusLabel = status;
+            statusClass +=
+              " border-slate-500/70 bg-slate-800 text-slate-200";
+          }
+
+          const createdAtStr = data.createdAt && data.createdAt.toDate
+            ? formatTs(data.createdAt)
+            : "";
+
+          li.className =
+            "rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 space-y-1";
+
+          li.innerHTML = `
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <div class="font-semibold text-slate-50">
+        ${escapeHtml(data.schoolName || "(未填學校名稱)")}
+      </div>
+      <div class="text-[11px] text-slate-400">
+        層級：${escapeHtml(getLevelLabel(data.level))}
+        ${
+          createdAtStr
+            ? `｜ 送出時間：${escapeHtml(createdAtStr)}`
+            : ""
+        }
+      </div>
+      <div class="text-[11px] text-slate-400">
+        年級數：${data.gradeCount ?? "未填"}
+        ｜ 每年級班級數：${data.classCount ?? "未填"}
+        ｜ 每班最大人數：${data.maxSeatPerClass ?? "未填"}
+      </div>
+      <div class="text-[11px] text-slate-500">
+        申請人 UID：${escapeHtml(data.uid || "(未登入 / 未紀錄)")}
+      </div>
+    </div>
+    <span class="${statusClass}">${statusLabel}</span>
+  </div>
+
+  ${
+    data.comment
+      ? `<div class="text-xs text-slate-200 whitespace-pre-wrap break-words mt-1">
+           ${escapeHtml(data.comment)}
+         </div>`
+      : ""
+  }
+
+  <div class="flex flex-wrap justify-end gap-2 mt-2">
+    ${
+      status === "pending"
+        ? `
+      <button
+        data-id="${id}"
+        data-action="approve"
+        class="px-2.5 py-1 rounded-full text-[11px] bg-emerald-500/20 text-emerald-100 border border-emerald-400/70 hover:bg-emerald-500/30">
+        ✅ 標記為已審核通過
+      </button>
+      <button
+        data-id="${id}"
+        data-action="reject"
+        class="px-2.5 py-1 rounded-full text-[11px] bg-slate-700/60 text-slate-100 border border-slate-500/70 hover:bg-slate-700">
+        標記為已處理（略過）
+      </button>
+    `
+        : ""
+    }
+  </div>
+`;
+
+
+          schoolReqList.appendChild(li);
+        });
+      },
+      (err) => {
+        console.error("載入 school_requests 失敗", err);
+        schoolReqMsg.textContent = "載入 school_requests 失敗，請稍後再試。";
+      }
+    );
+  }
+
+  // 點按鈕：加入 schools / 標記已處理
+  if (schoolReqList) {
+  schoolReqList.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const data = schoolReqDocs.get(id) || {};
+
+    if (!id) return;
+
+    try {
+      if (action === "approve") {
+        if (
+          !confirm(
+            `確定要將「${data.schoolName || "(未填學校名稱)"}」標記為已審核通過嗎？`
+          )
+        ) {
+          return;
+        }
+
+        await updateDoc(doc(db, "school_requests", id), {
+          status: "approved",
+          processedAt: new Date()
+        });
+
+        alert("已標記為『已審核通過』。請到 Firestore 的 schools 集合手動建立學校設定。");
+      } else if (action === "reject") {
+        if (!confirm("確定要將此申請標記為『已處理（略過）』嗎？"))
+          return;
+
+        await updateDoc(doc(db, "school_requests", id), {
+          status: "rejected",
+          processedAt: new Date()
+        });
+
+        alert("已將申請標記為『已處理（略過）』。");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("操作失敗，請稍後再試。");
+    }
+  });
+}
+
+
+</script>
+<style>
+  input, textarea, select {
+    color: #1f2937 !important;  /* slate-800 深灰 */
+  }
+</style>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>

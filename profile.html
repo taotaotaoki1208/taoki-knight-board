@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico">
+  <title>個人資料 - 陶吉騎士團任務板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 你的共用樣式 -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-100">
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-xl">
+      <!-- 頂部：標題 + 返回 / 登出 -->
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-semibold text-white">
+            個人資料
+          </h1>
+          <p class="text-sm text-slate-300 mt-1">
+            只有你自己看得到年級 / 班級 / 座號，其他同學只會看到你的暱稱。
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a
+            href="tasks.html"
+            class="rounded-full border border-slate-500 px-3 py-1 text-xs text-slate-200 hover:bg-slate-800"
+          >
+            回任務板
+          </a>
+          <button
+            id="logoutBtn"
+            class="rounded-full bg-rose-500 px-3 py-1 text-xs font-medium text-white shadow hover:bg-rose-400"
+          >
+            登出
+          </button>
+        </div>
+      </div>
+
+      <!-- 使用者資訊卡片 -->
+      <div
+        class="rounded-2xl border border-slate-700 bg-slate-900/70 px-5 py-4 shadow-xl shadow-black/40"
+      >
+        <!-- 顯示目前登入的暱稱 / 信箱 -->
+        <div class="mb-4 flex items-center gap-3">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-lg font-semibold"
+            id="avatarInitial"
+          >
+            ?
+          </div>
+          <div>
+            <div id="displayNickname" class="text-lg font-semibold text-white">
+              （載入中…）
+            </div>
+            <div id="displayEmail" class="text-xs text-slate-300">
+              <!-- email -->
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <!-- 年班座號 -->
+          <!-- 年班座號 -->
+<div>
+  <label class="block text-xs font-medium text-slate-300 mb-1">
+    年級
+  </label>
+  <input
+    id="gradeField"
+    type="number"
+    min="1"
+    max="6"
+    class="w-full rounded-lg border border-slate-600 bg-white px-3 py-1.5 text-sm text-slate-900"
+  />
+
+  <label class="mt-3 block text-xs font-medium text-slate-300 mb-1">
+    班級
+  </label>
+  <input
+    id="classField"
+    type="number"
+    min="1"
+    max="30"
+    class="w-full rounded-lg border border-slate-600 bg-white px-3 py-1.5 text-sm text-slate-900"
+  />
+
+  <label class="mt-3 block text-xs font-medium text-slate-300 mb-1">
+    座號
+  </label>
+  <input
+    id="seatField"
+    type="number"
+    min="1"
+    max="60"
+    class="w-full rounded-lg border border-slate-600 bg-white px-3 py-1.5 text-sm text-slate-900"
+  />
+
+  <!-- ⭐ 新增：儲存按鈕 + 訊息 -->
+  <button
+    id="saveStudentInfoBtn"
+    type="button"
+    class="mt-3 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white shadow hover:bg-emerald-400 disabled:opacity-60"
+  >
+    儲存年級 / 班級 / 座號變更
+  </button>
+  <p id="studentEditMessage" class="mt-1 text-[11px] text-amber-300"></p>
+</div>
+
+          <!-- 學校 / UID -->
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">
+              學校
+            </label>
+            <input
+              id="schoolField"
+              type="text"
+              class="w-full rounded-lg border border-slate-600 bg-white px-3 py-1.5 text-sm text-slate-900"
+
+              disabled
+            />
+
+            <label class="mt-3 block text-xs font-medium text-slate-300 mb-1">
+              使用者 ID（UID）
+            </label>
+            <input
+              id="uidField"
+              type="text"
+              class="w-full rounded-lg border border-slate-600 bg-white px-3 py-1.5 text-sm text-slate-900"
+
+              disabled
+            />
+          </div>
+        </div>
+
+        <!-- 修改暱稱 -->
+        <div class="mt-6 border-t border-slate-700 pt-4">
+          <h2 class="text-sm font-semibold text-slate-100 mb-2">
+            修改暱稱
+          </h2>
+          <form id="nicknameForm" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              id="nicknameInput"
+              type="text"
+              maxlength="20"
+              class="flex-1 rounded-lg border border-slate-500 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="輸入新的暱稱（最多 20 字）"
+            />
+            <button
+              type="submit"
+              class="mt-1 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-400 sm:mt-0"
+            >
+              儲存暱稱
+            </button>
+          </form>
+          <p id="profileMessage" class="mt-2 text-xs text-amber-300"></p>
+        </div>
+        
+                       <!-- 大頭貼上傳（不用 Storage，直接存在 Firestore） -->
+        <div class="mt-5 border-t border-slate-700 pt-4">
+          <h2 class="text-sm font-semibold text-slate-100 mb-3">
+            大頭貼
+          </h2>
+
+          <div class="flex items-center gap-4">
+            <!-- 預覽圈圈 -->
+            <div
+              id="avatarPreview"
+              class="h-16 w-16 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden text-xs text-slate-300"
+            >
+              預覽
+            </div>
+
+            <div class="flex-1 text-xs text-slate-300 space-y-2">
+              <p>
+                圖片會直接存在你的使用者資料中（Fire&nbsp;store），建議使用小張圖片（例如 200KB 以內）。只有登入的同學在任務 / 聊天中會看到你的頭像。
+              </p>
+
+              <input
+                id="avatarFileInput"
+                type="file"
+                accept="image/*"
+                class="block w-full text-xs text-slate-200 file:mr-3 file:rounded-md file:border-0 file:bg-slate-200 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-900 hover:file:bg-white"
+              />
+
+              <div class="flex items-center gap-2">
+                <button
+                  id="uploadAvatarBtn"
+                  type="button"
+                  class="rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-medium text-white shadow hover:bg-indigo-400 disabled:opacity-60"
+                >
+                  上傳大頭貼
+                </button>
+              </div>
+
+              <p id="avatarMessage" class="text-[11px] text-amber-300"></p>
+            </div>
+          </div>
+        </div>
+        <!-- 我的歷史任務（最近） -->
+        <div class="mt-6 border-t border-slate-700 pt-4">
+          <h2 class="text-sm font-semibold text-slate-100 mb-2">
+            我的歷史任務（最近）
+          </h2>
+          <p class="text-xs text-slate-400 mb-2">
+            顯示你最近發出的任務，以及你最近接到的任務（最多各 3 筆）。
+          </p>
+
+          <div class="grid gap-3 md:grid-cols-2">
+            <!-- 我發出的 -->
+            <div class="rounded-xl bg-slate-900/80 border border-slate-700 px-3 py-2">
+              <h3 class="text-xs font-semibold text-slate-200 mb-1">
+                我發出的任務
+              </h3>
+              <ul
+                id="historyCreatedList"
+                class="space-y-1 text-xs text-slate-200"
+              >
+                <li class="text-[11px] text-slate-400">載入中…</li>
+              </ul>
+            </div>
+
+            <!-- 我接到的 -->
+            <div class="rounded-xl bg-slate-900/80 border border-slate-700 px-3 py-2">
+              <h3 class="text-xs font-semibold text-slate-200 mb-1">
+                我接到的任務
+              </h3>
+              <ul
+                id="historyTakenList"
+                class="space-y-1 text-xs text-slate-200"
+              >
+                <li class="text-[11px] text-slate-400">載入中…</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+<!-- 合作評價 / 信任度 -->
+        <div class="mt-6 border-t border-slate-700 pt-4">
+          <h2 class="text-sm font-semibold text-slate-100 mb-2">
+            合作評價 & 信任度
+          </h2>
+
+          <!-- 上方總結：平均星數 + 被評價次數 + 信任度分數 -->
+          <div
+            id="ratingSummary"
+            class="text-sm text-slate-800 bg-slate-100 rounded-lg px-3 py-2"
+          >
+            （合作評價載入中…）
+          </div>
+
+          <!-- 下方列出最近幾則評價 -->
+          <ul
+            id="ratingList"
+            class="mt-3 space-y-2 text-sm"
+          >
+            <!-- 這裡會由 JavaScript 動態插入最近的評價 -->
+          </ul>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+    <!-- Firebase + 邏輯 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      collection,
+      getDocs,
+      query,
+      where,
+      setDoc,
+  deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      getStorage,
+      ref as storageRef,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGbRsMSuSoW4rx11n6T1Kz8KyLTRqzHvU",
+      authDomain: "taoki-knight-board.firebaseapp.com",
+      projectId: "taoki-knight-board",
+      storageBucket: "taoki-knight-board.firebasestorage.app",
+      messagingSenderId: "319225747276",
+      appId: "1:319225747276:web:5556b601dca17e760121e9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const avatarInitial = document.getElementById("avatarInitial");
+    const displayNickname = document.getElementById("displayNickname");
+    const displayEmail = document.getElementById("displayEmail");
+
+    const gradeField = document.getElementById("gradeField");
+    const classField = document.getElementById("classField");
+    const seatField = document.getElementById("seatField");
+    const schoolField = document.getElementById("schoolField");
+    const uidField = document.getElementById("uidField");
+const saveStudentInfoBtn = document.getElementById("saveStudentInfoBtn");
+const studentEditMessage = document.getElementById("studentEditMessage");
+    const nicknameForm = document.getElementById("nicknameForm");
+    const nicknameInput = document.getElementById("nicknameInput");
+    const profileMessage = document.getElementById("profileMessage");
+
+    // 合作評價相關
+    const ratingSummary = document.getElementById("ratingSummary");
+    const ratingList = document.getElementById("ratingList");
+    // 我的歷史任務列表
+    const historyCreatedList = document.getElementById("historyCreatedList");
+    const historyTakenList = document.getElementById("historyTakenList");
+function formatDate(d) {
+  if (!d) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}/${m}/${day}`;
+}
+    // 大頭貼相關元素
+    const avatarPreview = document.getElementById("avatarPreview");
+    const avatarFileInput = document.getElementById("avatarFileInput");
+    const uploadAvatarBtn = document.getElementById("uploadAvatarBtn");
+    const avatarMessage = document.getElementById("avatarMessage");
+
+    let currentUser = null;
+    let currentUserProfile = null;
+    function formatStatusLabel(status) {
+      switch (status) {
+        case "open":
+          return "【開放中】";
+        case "accepted":
+          return "【已有人接】";
+        case "completed":
+          return "【已完成】";
+        case "expired":
+          return "【已過期】";
+        default:
+          return "【未知】";
+      }
+    }
+
+    function formatStatusClass(status) {
+      switch (status) {
+        case "open":
+          return "text-emerald-400";
+        case "accepted":
+          return "text-amber-400";
+        case "completed":
+          return "text-indigo-400";
+        case "expired":
+          return "text-slate-400";
+        default:
+          return "text-slate-400";
+      }
+    }
+ // 將圖片檔案壓縮成小圖 Data URL（預設 256x256、JPG 80% 品質）
+    function compressImageFile(file, maxWidth = 256, maxHeight = 256, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            let { width, height } = img;
+
+            // 等比例縮放到指定最大邊
+            const scale = Math.min(
+              1,
+              maxWidth / width,
+              maxHeight / height
+            );
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 匯出成 JPG DataURL（比 PNG 小很多）
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            resolve(dataUrl);
+          } catch (err) {
+            reject(err);
+          }
+        };
+        img.onerror = reject;
+
+        // 用 FileReader 把檔案讀成 Data URL 再丟給 <img>
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    // 把暱稱第一個字顯示成頭像
+function setAvatarLetter(nameOrLetter) {
+  const c = (nameOrLetter || "?").trim().charAt(0) || "?";
+  if (avatarInitial) {
+    avatarInitial.textContent = c;
+  }
+  if (avatarPreview) {
+    avatarPreview.innerHTML = `<span class="text-sm text-slate-300">${c}</span>`;
+  }
+}
+
+// 把圖片 Data URL 顯示成頭像（avatarData 或 avatarUrl）
+function setAvatarImage(src) {
+  if (!src) return;
+  const imgHtml = `
+    <img
+      src="${src}"
+      alt="avatar"
+      loading="lazy"
+      class="h-full w-full object-cover rounded-full"
+    />
+  `;
+  if (avatarInitial) {
+    avatarInitial.innerHTML = imgHtml;
+  }
+  if (avatarPreview) {
+    avatarPreview.innerHTML = imgHtml;
+  }
+}
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+
+    // 讀取「別人給我的評價」，計算平均 / 次數 / 信任度分數
+    async function loadMyReviews() {
+      if (!currentUser || !ratingSummary || !ratingList) return;
+
+      ratingSummary.textContent = "合作評價載入中…";
+      ratingList.innerHTML = "";
+
+      try {
+        const reviewsRef = collection(db, "task_reviews");
+        const qReviews = query(
+          reviewsRef,
+          where("toUserId", "==", currentUser.uid)
+        );
+        const snap = await getDocs(qReviews);
+
+        if (snap.empty) {
+          ratingSummary.textContent =
+            "目前還沒有任何合作評價，完成幾個任務就會在這裡累積評價喔！";
+          return;
+        }
+
+        const reviews = [];
+        let count = 0;
+        let total = 0;
+
+        snap.forEach((docSnap) => {
+          const d = docSnap.data();
+          if (typeof d.rating === "number") {
+            count++;
+            total += d.rating;
+            reviews.push({ id: docSnap.id, ...d });
+          }
+        });
+
+        if (count === 0) {
+          ratingSummary.textContent = "尚未有可計算的評分。";
+          return;
+        }
+
+        const avg = total / count; // 0 ~ 5
+        const avgRounded = Math.round(avg * 10) / 10;
+        const trustScore = Math.round((avg / 5) * 100); // 0 ~ 100
+        const starCount = Math.round(avg);
+        const stars = "★".repeat(starCount);
+        const empty = "☆".repeat(5 - starCount);
+
+        ratingSummary.innerHTML = `
+          <div class="flex flex-col gap-1">
+            <div class="flex items-baseline gap-2">
+              <span class="text-lg text-yellow-500">${stars}${empty}</span>
+              <span class="text-sm text-slate-800">${avgRounded} / 5</span>
+            </div>
+            <div class="text-xs text-slate-600">
+              已被評價 <span class="font-semibold">${count}</span> 次 ｜ 信任度分數
+              <span class="font-semibold">${trustScore}</span> 分
+            </div>
+          </div>
+        `;
+
+        reviews.sort((a, b) => {
+          const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+          const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+          return db - da;
+        });
+
+        const latest = reviews.slice(0, 3);
+        latest.forEach((r) => {
+          const li = document.createElement("li");
+          li.className =
+            "rounded-lg bg-slate-100 border border-slate-200 px-3 py-2";
+
+          const sCount = Math.round(r.rating || 0);
+          const sStr = "★".repeat(sCount) + "☆".repeat(5 - sCount);
+          const dateStr = r.createdAt?.toDate
+            ? formatDate(r.createdAt.toDate())
+            : "";
+
+          const safeComment = (r.comment || "（對方沒有留下文字）")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+          li.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-yellow-500">${sStr}</span>
+              <span class="text-[11px] text-slate-500">${dateStr}</span>
+            </div>
+            <div class="mt-1 text-sm text-slate-800">${safeComment}</div>
+          `;
+          ratingList.appendChild(li);
+        });
+      } catch (err) {
+        console.error(err);
+        ratingSummary.textContent = "載入評價時發生錯誤。";
+      }
+    }
+    // 讀取「我的歷史任務」（最近各 3 筆）
+    async function loadMyTaskHistory() {
+      if (!currentUser || !historyCreatedList || !historyTakenList) return;
+
+      historyCreatedList.innerHTML =
+        '<li class="text-[11px] text-slate-400">載入中…</li>';
+      historyTakenList.innerHTML =
+        '<li class="text-[11px] text-slate-400">載入中…</li>';
+
+      try {
+        const tasksRef = collection(db, "tasks");
+
+        // 我發出的任務
+        const qCreated = query(
+          tasksRef,
+          where("creatorId", "==", currentUser.uid)
+        );
+        const snapCreated = await getDocs(qCreated);
+
+        const createdTasks = [];
+        snapCreated.forEach((docSnap) => {
+          const d = docSnap.data();
+          createdTasks.push({
+            id: docSnap.id,
+            ...d
+          });
+        });
+
+        // 依 createdAt 由新到舊排序
+        createdTasks.sort((a, b) => {
+          const da = a.createdAt?.toDate
+            ? a.createdAt.toDate()
+            : new Date(0);
+          const db = b.createdAt?.toDate
+            ? b.createdAt.toDate()
+            : new Date(0);
+          return db - da;
+        });
+
+        const latestCreated = createdTasks.slice(0, 3);
+
+        historyCreatedList.innerHTML = "";
+        if (latestCreated.length === 0) {
+          historyCreatedList.innerHTML =
+            '<li class="text-[11px] text-slate-400">目前還沒有發出任何任務。</li>';
+        } else {
+          latestCreated.forEach((t) => {
+            const li = document.createElement("li");
+            li.className =
+              "flex items-center justify-between gap-2 rounded-lg bg-slate-800/80 px-2 py-1.5";
+
+            const left = document.createElement("div");
+            left.className = "flex-1";
+            const statusSpan = document.createElement("span");
+            statusSpan.className =
+              "mr-1 text-[11px] font-semibold " +
+              formatStatusClass(t.status);
+            statusSpan.textContent = formatStatusLabel(t.status);
+
+            const titleSpan = document.createElement("span");
+            titleSpan.className = "text-xs";
+            titleSpan.textContent = t.title || "(未命名任務)";
+
+            left.appendChild(statusSpan);
+            left.appendChild(titleSpan);
+
+            const btn = document.createElement("button");
+            btn.className =
+              "ml-2 shrink-0 rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600";
+            btn.textContent = "查看";
+            btn.addEventListener("click", () => {
+              window.location.href = `task_detail.html?taskId=${t.id}`;
+            });
+
+            li.appendChild(left);
+            li.appendChild(btn);
+
+            historyCreatedList.appendChild(li);
+          });
+        }
+
+        // 我接到的任務
+        const qTaken = query(
+          tasksRef,
+          where("takerId", "==", currentUser.uid)
+        );
+        const snapTaken = await getDocs(qTaken);
+
+        const takenTasks = [];
+        snapTaken.forEach((docSnap) => {
+          const d = docSnap.data();
+          takenTasks.push({
+            id: docSnap.id,
+            ...d
+          });
+        });
+
+        takenTasks.sort((a, b) => {
+          const da = a.createdAt?.toDate
+            ? a.createdAt.toDate()
+            : new Date(0);
+          const db = b.createdAt?.toDate
+            ? b.createdAt.toDate()
+            : new Date(0);
+          return db - da;
+        });
+
+        const latestTaken = takenTasks.slice(0, 3);
+
+        historyTakenList.innerHTML = "";
+        if (latestTaken.length === 0) {
+          historyTakenList.innerHTML =
+            '<li class="text-[11px] text-slate-400">目前還沒有接到任何任務。</li>';
+        } else {
+          latestTaken.forEach((t) => {
+            const li = document.createElement("li");
+            li.className =
+              "flex items-center justify-between gap-2 rounded-lg bg-slate-800/80 px-2 py-1.5";
+
+            const left = document.createElement("div");
+            left.className = "flex-1";
+            const statusSpan = document.createElement("span");
+            statusSpan.className =
+              "mr-1 text-[11px] font-semibold " +
+              formatStatusClass(t.status);
+            statusSpan.textContent = formatStatusLabel(t.status);
+
+            const titleSpan = document.createElement("span");
+            titleSpan.className = "text-xs";
+            titleSpan.textContent = t.title || "(未命名任務)";
+
+            left.appendChild(statusSpan);
+            left.appendChild(titleSpan);
+
+            const btn = document.createElement("button");
+            btn.className =
+              "ml-2 shrink-0 rounded bg-slate-700 px-2 py-0.5 text-[11px] text-slate-100 hover:bg-slate-600";
+            btn.textContent = "查看";
+            btn.addEventListener("click", () => {
+              window.location.href = `task_detail.html?taskId=${t.id}`;
+            });
+
+            li.appendChild(left);
+            li.appendChild(btn);
+
+            historyTakenList.appendChild(li);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        historyCreatedList.innerHTML =
+          '<li class="text-[11px] text-rose-400">載入發出的任務時發生錯誤。</li>';
+        historyTakenList.innerHTML =
+          '<li class="text-[11px] text-rose-400">載入接到的任務時發生錯誤。</li>';
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+// 共用：檢查使用者是否被封鎖
+async function enforceBanIfNeeded(user) {
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) return false;
+
+    const data = snap.data();
+    if (data.isBanned) {
+      const reason =
+        data.banReason ||
+        "你的帳號已被管理員封鎖，如有疑問請向老師或管理員詢問。";
+
+      alert(`帳號已被封鎖：\n${reason}`);
+
+      try {
+        // 把原因暫存下來，等等在 login 頁面顯示
+        localStorage.setItem("lastBanReason", reason);
+      } catch (e) {
+        console.error("儲存封鎖原因失敗：", e);
+      }
+
+      await signOut(auth);
+      // 加上 ?banned=1 讓 login.html 知道要顯示封鎖訊息
+      window.location.href = "login.html?banned=1";
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    console.error("檢查封鎖狀態失敗：", err);
+    // 出錯就當作沒封鎖，避免一直卡在這裡
+    return false;
+  }
+}
+
+      currentUser = user;
+      displayEmail.textContent = user.email || "";
+
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+
+      if (!snap.exists()) {
+        displayNickname.textContent = "找不到使用者資料";
+        return;
+      }
+
+           currentUserProfile = snap.data();
+
+      const nickname = currentUserProfile.nickname || "(未設定暱稱)";
+      displayNickname.textContent = nickname;
+      nicknameInput.value = nickname;
+
+      // 如果有存大頭貼圖片（Data URL），就用圖片；否則用暱稱第一個字母
+      const avatarData =
+        currentUserProfile.avatarData || currentUserProfile.avatarUrl || null;
+
+      if (avatarData) {
+        setAvatarImage(avatarData);
+      } else {
+        setAvatarLetter(nickname);
+      }
+
+
+      gradeField.value = currentUserProfile.grade ?? "";
+      classField.value = currentUserProfile.classNo ?? "";
+      seatField.value = currentUserProfile.seatNo ?? "";
+      schoolField.value = currentUserProfile.schoolName || "衛道中學";
+      uidField.value = user.uid;
+
+      // ⭐ 讀取「別人給我的評價」與信任度分數
+      await loadMyReviews();
+
+      // ⭐ 讀取我的歷史任務（最近）
+      await loadMyTaskHistory();
+    });
+    // ⭐ 儲存「年級 / 班級 / 座號」變更（保持 seatKeys 不重複）
+    if (saveStudentInfoBtn) {
+      saveStudentInfoBtn.addEventListener("click", async () => {
+        if (!currentUser || !currentUserProfile) {
+          studentEditMessage.textContent = "尚未載入使用者資料，請稍後再試。";
+          return;
+        }
+
+        studentEditMessage.classList.remove("text-emerald-300");
+        studentEditMessage.classList.add("text-amber-300");
+        studentEditMessage.textContent = "";
+
+        // 讀取使用者輸入的新值
+        const newGrade = Number(gradeField.value);
+        const newClassNo = Number(classField.value);
+        const newSeatNo = Number(seatField.value);
+
+        if (!Number.isInteger(newGrade) || newGrade <= 0) {
+          studentEditMessage.textContent = "請輸入正確的年級（正整數）。";
+          return;
+        }
+        if (!Number.isInteger(newClassNo) || newClassNo <= 0) {
+          studentEditMessage.textContent = "請輸入正確的班級（正整數）。";
+          return;
+        }
+        if (!Number.isInteger(newSeatNo) || newSeatNo <= 0) {
+          studentEditMessage.textContent = "請輸入正確的座號（正整數）。";
+          return;
+        }
+
+        const schoolId = currentUserProfile.schoolId;
+        const schoolLevel = currentUserProfile.schoolLevel || "junior";
+
+        if (!schoolId) {
+          studentEditMessage.textContent = "找不到目前學校資訊，無法變更座位。";
+          return;
+        }
+
+        // 舊的座位資訊
+        const oldGrade = currentUserProfile.grade;
+        const oldClassNo = currentUserProfile.classNo;
+        const oldSeatNo = currentUserProfile.seatNo;
+
+        const oldSeatKey =
+          (oldGrade && oldClassNo && oldSeatNo)
+            ? `${schoolId}_${schoolLevel}_${oldGrade}_${oldClassNo}_${oldSeatNo}`
+            : null;
+
+        const newSeatKey = `${schoolId}_${schoolLevel}_${newGrade}_${newClassNo}_${newSeatNo}`;
+
+        // 如果沒有改其實就不用動
+        if (oldSeatKey === newSeatKey) {
+          studentEditMessage.textContent = "年級 / 班級 / 座號沒有變更。";
+          return;
+        }
+
+        saveStudentInfoBtn.disabled = true;
+        studentEditMessage.textContent = "檢查座號是否已被註冊…";
+
+        try {
+          // 1️⃣ 檢查新的 seatKey 有沒有被別人用
+          const newSeatDocRef = doc(db, "seatKeys", newSeatKey);
+          const newSeatSnap = await getDoc(newSeatDocRef);
+
+          if (newSeatSnap.exists()) {
+            const data = newSeatSnap.data() || {};
+            if (data.userId && data.userId !== currentUser.uid) {
+              studentEditMessage.textContent =
+                "這個年級 / 班級 / 座號在本校已經有其他帳號使用，請換一個座位。";
+              saveStudentInfoBtn.disabled = false;
+              return;
+            }
+            // 如果 seatKeys 裡面記的是自己，其實也可以沿用，但我們還是會覆蓋一次
+          }
+
+          // 2️⃣ 刪除舊的 seatKey（如果存在且不同）
+          if (oldSeatKey && oldSeatKey !== newSeatKey) {
+            try {
+              await deleteDoc(doc(db, "seatKeys", oldSeatKey));
+            } catch (e) {
+              console.warn("刪除舊 seatKey 失敗（可能本來就不存在）：", e);
+            }
+          }
+
+          // 3️⃣ 建立 / 覆蓋新的 seatKey
+          await setDoc(newSeatDocRef, {
+            userId: currentUser.uid,
+            schoolId,
+            schoolLevel,
+            grade: newGrade,
+            classNo: newClassNo,
+            seatNo: newSeatNo,
+            updatedAt: new Date()
+          });
+
+          // 4️⃣ 更新 users/{uid} 上的資料
+          const userRef = doc(db, "users", currentUser.uid);
+          await updateDoc(userRef, {
+            grade: newGrade,
+            classNo: newClassNo,
+            seatNo: newSeatNo
+          });
+
+          // 更新本地快取 & 畫面
+          currentUserProfile.grade = newGrade;
+          currentUserProfile.classNo = newClassNo;
+          currentUserProfile.seatNo = newSeatNo;
+
+          gradeField.value = String(newGrade);
+          classField.value = String(newClassNo);
+          seatField.value = String(newSeatNo);
+
+          studentEditMessage.classList.remove("text-amber-300");
+          studentEditMessage.classList.add("text-emerald-300");
+          studentEditMessage.textContent = "年級 / 班級 / 座號已更新！";
+
+          setTimeout(() => {
+            studentEditMessage.textContent = "";
+            studentEditMessage.classList.remove("text-emerald-300");
+            studentEditMessage.classList.add("text-amber-300");
+          }, 2000);
+        } catch (err) {
+          console.error(err);
+          studentEditMessage.textContent = "更新失敗：" + err.message;
+        } finally {
+          saveStudentInfoBtn.disabled = false;
+        }
+      });
+    }
+
+    nicknameForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      profileMessage.textContent = "";
+
+      if (!currentUser || !currentUserProfile) {
+        profileMessage.textContent = "尚未載入使用者資料。";
+        return;
+      }
+
+      const newNickname = nicknameInput.value.trim();
+      if (!newNickname) {
+        profileMessage.textContent = "暱稱不能是空白。";
+        return;
+      }
+      if (newNickname.length > 20) {
+        profileMessage.textContent = "暱稱長度請在 20 字以內。";
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userRef, { nickname: newNickname });
+
+        currentUserProfile.nickname = newNickname;
+        displayNickname.textContent = newNickname;
+
+        // 如果沒有自訂大頭貼，就用新的暱稱第一個字
+        if (!currentUserProfile.avatarUrl) {
+          const firstChar = newNickname.trim().charAt(0) || "?";
+          setAvatarLetter(firstChar);
+        }
+
+        profileMessage.classList.remove("text-amber-300");
+        profileMessage.classList.add("text-emerald-300");
+        profileMessage.textContent = "暱稱已更新！";
+
+        setTimeout(() => {
+          profileMessage.textContent = "";
+          profileMessage.classList.remove("text-emerald-300");
+          profileMessage.classList.add("text-amber-300");
+        }, 2000);
+      } catch (err) {
+        console.error(err);
+        profileMessage.textContent = "更新暱稱失敗：" + err.message;
+      }
+    });
+
+    // 上傳大頭貼（不用 Storage，直接把小圖 Data URL 存到 users/{uid}.avatarData）
+        // 上傳大頭貼（先壓縮成小圖再存到 users/{uid}.avatarData）
+    if (uploadAvatarBtn) {
+      uploadAvatarBtn.addEventListener("click", async () => {
+        avatarMessage.textContent = "";
+
+        if (!currentUser) {
+          avatarMessage.textContent = "尚未登入，請重新登入後再試一次。";
+          return;
+        }
+
+        const file = avatarFileInput && avatarFileInput.files
+          ? avatarFileInput.files[0]
+          : null;
+
+        if (!file) {
+          avatarMessage.textContent = "請先選擇一張圖片。";
+          return;
+        }
+
+        // 可以稍微放寬原檔大小限制（例如 3MB），因為我們會壓縮
+        const maxInputSizeBytes = 3 * 1024 * 1024;
+        if (file.size > maxInputSizeBytes) {
+          avatarMessage.textContent = "原始圖片太大，請選擇 3MB 以下的圖片。";
+          return;
+        }
+
+        uploadAvatarBtn.disabled = true;
+        avatarMessage.classList.remove("text-emerald-300");
+        avatarMessage.classList.add("text-amber-300");
+        avatarMessage.textContent = "正在壓縮圖片並上傳，請稍候…";
+
+        try {
+          // ★ 重點：壓縮成 256x256 左右的小圖
+          const compressedDataUrl = await compressImageFile(file, 256, 256, 0.8);
+
+          // 再給一層保險：避免 DataURL 本身太大（比如 > 300KB）
+          const approxSizeBytes = Math.round((compressedDataUrl.length * 3) / 4);
+          if (approxSizeBytes > 300 * 1024) {
+            avatarMessage.textContent =
+              "壓縮後圖片仍然過大，請改用解析度較小的圖片。";
+            uploadAvatarBtn.disabled = false;
+            return;
+          }
+
+          // 存到 users/{uid}.avatarData
+          const userRef = doc(db, "users", currentUser.uid);
+          await updateDoc(userRef, {
+            avatarData: compressedDataUrl
+          });
+
+          if (!currentUserProfile) currentUserProfile = {};
+          currentUserProfile.avatarData = compressedDataUrl;
+
+          // 更新畫面上的頭像
+          setAvatarImage(compressedDataUrl);
+
+          avatarMessage.classList.remove("text-amber-300");
+          avatarMessage.classList.add("text-emerald-300");
+          avatarMessage.textContent = "大頭貼已更新！";
+
+          setTimeout(() => {
+            avatarMessage.textContent = "";
+            avatarMessage.classList.remove("text-emerald-300");
+            avatarMessage.classList.add("text-amber-300");
+          }, 2000);
+        } catch (err) {
+          console.error(err);
+          avatarMessage.classList.remove("text-emerald-300");
+          avatarMessage.classList.add("text-amber-300");
+          avatarMessage.textContent = "上傳失敗，請稍後再試一次。";
+        } finally {
+          uploadAvatarBtn.disabled = false;
+        }
+      });
+    }
+
+  </script>
+<p class="text-[11px] text-slate-500 mt-6 text-center">
+  本平台僅供校內任務媒合使用，所有資料僅作為任務管理及聯繫用途，不會對外公開或提供給第三方。
+</p>
+</body>
+</html>
